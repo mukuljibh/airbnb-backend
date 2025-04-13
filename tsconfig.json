@@ -6,8 +6,7 @@
       "target": "es6",
       "moduleResolution": "node",
       "sourceMap": true,
-      "outDir": "dist",
-      "rootDir": "src" // Add this line to specify the source folder
+      "outDir": "dist"
    },
    "lib": ["es2015"]
 }
