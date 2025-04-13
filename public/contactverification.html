@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Verify Your New Contact Information</title>
+      <style>
+         body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+         }
+
+         .email-container {
+            width: 100%;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+         }
+
+         .email-content {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+         }
+
+         .email-header {
+            font-size: 22px;
+            font-weight: bold;
+            color: #1e88e5;
+            text-align: center;
+            margin-bottom: 20px;
+         }
+
+         .email-body {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #555;
+            text-align: center;
+         }
+
+         .otp {
+            font-size: 28px;
+            font-weight: bold;
+            color: #1e88e5;
+            margin: 15px 0;
+            display: inline-block;
+            letter-spacing: 2px;
+         }
+
+         .note {
+            font-size: 14px;
+            color: #777;
+            margin-top: 10px;
+         }
+
+         .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #777;
+            margin-top: 30px;
+         }
+
+         .footer a {
+            color: #1e88e5;
+            text-decoration: none;
+         }
+      </style>
+   </head>
+
+   <body>
+      <div class="email-container">
+         <div class="email-content">
+            <div class="email-header">
+               Verify Your New email : {{new_email}}
+            </div>
+            <div class="email-body">
+               <p>Hello,</p>
+               <p>
+                  We received a request to update your {{old_email}}. Please use
+                  the OTP below to verify your new {{new_email}}:
+               </p>
+               <span class="otp">{{otp}}</span>
+               <p>
+                  This OTP is valid for 10 minutes. If you did not request this
+                  change, please secure your account immediately.
+               </p>
+               <p class="note">New : <strong>{{new_email}}</strong></p>
+            </div>
+            <div class="footer">
+               <p>
+                  If you need assistance, contact our
+                  <a href="mailto:support@example.com">support team</a>.
+               </p>
+            </div>
+         </div>
+      </div>
+   </body>
+</html>

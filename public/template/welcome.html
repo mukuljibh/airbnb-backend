@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Welcome to Airbnb</title>
+      <style type="text/css" rel="stylesheet" media="all">
+         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+         * {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+         }
+         a {
+            text-decoration: none !important;
+            color: #5c5c5c !important;
+         }
+         .header {
+            border-bottom: 1px solid #ddd;
+            padding: 16px 20px;
+         }
+         h1 {
+            text-align: center;
+            font-size: 24px;
+            font-weight: 600;
+            margin-top: 30px;
+            margin-bottom: 5px;
+            color: #bb9e6c;
+         }
+         h3 {
+            font-size: 20px;
+            text-align: center;
+            color: #474747;
+            font-weight: 600;
+            margin-top: 0;
+         }
+         .message {
+            font-size: 15px;
+            color: #5c5c5c;
+            text-align: center;
+            padding: 0 20px;
+            margin-top: 16px;
+            line-height: 24px;
+         }
+         .btn {
+            display: inline-block;
+            background-color: #bb9e6c;
+            border: none;
+            padding: 12px 30px;
+            margin: 10px;
+            color: #fff !important;
+            font-size: 15px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+         }
+         .btn:hover {
+            background-color: #a88b5c;
+         }
+         .footer_table {
+            text-align: center;
+         }
+         .footer_table td {
+            padding: 10px 10px;
+            font-size: 14px;
+            color: #717171;
+         }
+         .footer_table a {
+            text-decoration: underline !important;
+            text-underline-offset: 2px;
+            transition: all 0.3s;
+         }
+         .footer_table a:hover {
+            color: #bb9e6c !important;
+         }
+      </style>
+   </head>
+   <body>
+      <table
+         style="background-color: #ebebeb"
+         width="100%"
+         cellpadding="0"
+         cellspacing="0"
+      >
+         <tbody>
+            <tr>
+               <td
+                  align="center"
+                  valign="top"
+                  style="width: 600px; padding: 20px 0"
+               >
+                  <table width="600" cellpadding="0" cellspacing="0">
+                     <tbody>
+                        <tr>
+                           <td style="background-color: white">
+                              <div>
+                                 <div class="header">
+                                    <table
+                                       width="100%"
+                                       cellpadding="0"
+                                       cellspacing="0"
+                                    >
+                                       <tr>
+                                          <td align="left">
+                                             <img
+                                                src="https://frankporter.mexxiss.com/assets/logo-BitIhuvu.png"
+                                                alt="Logo"
+                                                width="120"
+                                             />
+                                          </td>
+                                          <td align="right">
+                                             <table
+                                                cellspacing="10"
+                                                cellpadding="0"
+                                                border="0"
+                                             >
+                                                <tr>
+                                                   <td>
+                                                      <a href="#"
+                                                         ><img
+                                                            src="https://res.cloudinary.com/airbnb-management/image/upload/v1740738875/twitter_ldaxhg.png"
+                                                            width="20px"
+                                                            alt="X"
+                                                      /></a>
+                                                   </td>
+                                                   <td>
+                                                      <a href="#"
+                                                         ><img
+                                                            src="https://res.cloudinary.com/airbnb-management/image/upload/v1740738875/facebook_nbxxo0.png"
+                                                            width="20px"
+                                                            alt="Facebook"
+                                                      /></a>
+                                                   </td>
+                                                   <td>
+                                                      <a href="#"
+                                                         ><img
+                                                            src="https://res.cloudinary.com/airbnb-management/image/upload/v1740738875/instagram_w3gs0m.png"
+                                                            width="20px"
+                                                            alt="Instagram"
+                                                      /></a>
+                                                   </td>
+                                                </tr>
+                                             </table>
+                                          </td>
+                                       </tr>
+                                    </table>
+                                 </div>
+
+                                 <h1>Welcome, {{name}}!</h1>
+                                 <h3>We’re excited to have you 🎉</h3>
+                                 <p class="message">
+                                    Thanks for signing up with Frank Porter.
+                                    You're now ready to explore stunning
+                                    vacation homes, book your perfect stay, or
+                                    even become a host and start earning.
+                                 </p>
+                                 <p class="message">
+                                    Let’s get started on your journey.
+                                 </p>
+                                 <div style="text-align: center">
+                                    <a
+                                       href="https://yourdomain.com/explore"
+                                       class="btn"
+                                       >Explore Stays</a
+                                    >
+                                    <a
+                                       href="https://yourdomain.com/become-a-host"
+                                       class="btn"
+                                       style="background-color: #444"
+                                       >Become a Host</a
+                                    >
+                                 </div>
+
+                                 <hr
+                                    style="
+                                       margin: 30px 0;
+                                       border-top: 1px solid #ededed;
+                                    "
+                                 />
+
+                                 <table
+                                    width="100%"
+                                    cellpadding="0"
+                                    cellspacing="0"
+                                 >
+                                    <tr>
+                                       <td align="center">
+                                          <table class="footer_table">
+                                             <tr>
+                                                <td><a href="/">Terms</a></td>
+                                                <td><a href="/">Privacy</a></td>
+                                                <td><a href="/">Cookies</a></td>
+                                                <td>
+                                                   <a href="/">Contact us</a>
+                                                </td>
+                                             </tr>
+                                          </table>
+                                          <p
+                                             style="
+                                                color: #717171;
+                                                text-align: center;
+                                                font-size: 14px;
+                                                width: 340px;
+                                                line-height: 20px;
+                                                margin: 0 auto 20px;
+                                             "
+                                          >
+                                             © 2024 FRANK PORTER VACATION HOMES
+                                             RENTAL L.L.C. All rights reserved.
+                                          </p>
+                                       </td>
+                                    </tr>
+                                 </table>
+                              </div>
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </td>
+            </tr>
+         </tbody>
+      </table>
+   </body>
+</html>

@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Booking Confirmation - StayEase</title>
+      <style>
+         body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f8f8;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+         }
+
+         .confirmation-container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+         }
+
+         .confirmation-header {
+            font-size: 28px;
+            font-weight: bold;
+            color: #ff5a5f;
+            margin-bottom: 20px;
+         }
+
+         .confirmation-body {
+            font-size: 18px;
+            line-height: 1.6;
+            color: #555;
+         }
+
+         .booking-details {
+            font-size: 20px;
+            font-weight: bold;
+            color: #ff5a5f;
+            margin: 10px 0;
+         }
+
+         .footer {
+            font-size: 14px;
+            color: #777;
+            margin-top: 25px;
+         }
+
+         .footer a {
+            color: #ff5a5f;
+            text-decoration: none;
+         }
+
+         .cta-button {
+            display: inline-block;
+            background-color: #ff5a5f;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 15px;
+         }
+      </style>
+   </head>
+
+   <body>
+      <div class="confirmation-container">
+         <div class="confirmation-header">Booking Confirmed!</div>
+         <div class="confirmation-body">
+            <p>Dear <strong>{{customer_name}}</strong>,</p>
+            <p>
+               Your stay has been successfully booked! Here are your details:
+            </p>
+            <p class="booking-details">Booking ID: {{reservation_id}}</p>
+            <p class="booking-details">Location: {{location}}</p>
+            <p class="booking-details">Check-in: {{checkin_date}}</p>
+            <p class="booking-details">Check-out: {{checkout_date}}</p>
+            <p class="booking-details">Guests: {{guests_count}}</p>
+            <a href="#" class="cta-button">Manage Your Booking</a>
+         </div>
+         <div class="footer">
+            <p>
+               Need help? Contact our
+               <a href="mailto:support@stayease.com">support team</a>.
+            </p>
+            <p>Thank you for choosing StayEase!</p>
+         </div>
+      </div>
+   </body>
+</html>

@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Document</title>
+      <style type="text/css" rel="stylesheet" media="all">
+         @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+         * {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+         }
+         a {
+            text-decoration: none !important;
+            color: #5c5c5c !important;
+         }
+         .header {
+            border-bottom: 1px solid #ddd;
+            padding: 16px 20px;
+         }
+         h1 {
+            text-align: center;
+            font-size: 24px;
+            font-weight: 600;
+            margin-top: 30px;
+            margin-bottom: 10px;
+            color: #bb9e6c;
+         }
+         h3 {
+            font-size: 20px;
+            text-align: center;
+            color: #474747;
+            font-weight: 600;
+         }
+         h2 a {
+            font-size: 18px;
+            font-weight: 600;
+            margin-top: 6px;
+            margin-bottom: 6px;
+         }
+         h2 a:hover {
+            color: #bb9e6c !important;
+         }
+         .social_links {
+            list-style: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+         }
+         .details_table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid #ededed;
+         }
+         .details_table td {
+            border-bottom: 1px solid #ededed;
+            padding: 10px 20px;
+            font-size: 14px;
+            color: #5c5c5c;
+         }
+         .details_table tr:last-child td {
+            border-bottom: none;
+         }
+         .details_table td a[href] {
+            color: rgb(92, 92, 92) !important;
+         }
+         .btn {
+            display: inline-block;
+            background-color: #bb9e6c;
+            border: none;
+            padding: 12px 20px;
+            color: #fff !important;
+            font-size: 15px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+         }
+         .btn:hover {
+            background-color: #a88b5c;
+         }
+         .footer_table {
+            text-align: center;
+         }
+         .footer_table td {
+            padding: 10px 10px;
+            font-size: 14px;
+            color: #717171;
+         }
+         .footer_table a {
+            text-decoration: underline !important;
+            text-underline-offset: 2px;
+            transition: all 0.3s;
+         }
+         .footer_table a:hover {
+            color: #bb9e6c !important;
+         }
+      </style>
+   </head>
+   <body>
+      <table
+         style="background-color: rgb(235, 235, 235)"
+         width="100%"
+         cellpadding="0"
+         cellspacing="0"
+      >
+         <tbody>
+            <tr class="">
+               <td
+                  align="center"
+                  valign="top"
+                  style="width: 600px; padding: 20px 0"
+               >
+                  <table width="600" cellpadding="0" cellspacing="0">
+                     <tbody>
+                        <tr>
+                           <td style="background-color: white">
+                              <div>
+                                 <div class="header">
+                                    <table
+                                       width="100%"
+                                       cellpadding="0"
+                                       cellspacing="0"
+                                    >
+                                       <tr>
+                                          <td align="left">
+                                             <img
+                                                src="https://frankporter.mexxiss.com/assets/logo-BitIhuvu.png"
+                                                alt="Logo"
+                                                width="120"
+                                             />
+                                          </td>
+                                          <td align="right">
+                                             <table
+                                                cellspacing="10"
+                                                cellpadding="0"
+                                                border="0"
+                                             >
+                                                <tr>
+                                                   <td>
+                                                      <a href="#"
+                                                         ><img
+                                                            src="https://res.cloudinary.com/airbnb-management/image/upload/v1740738875/twitter_ldaxhg.png"
+                                                            width="20px"
+                                                            alt="X"
+                                                      /></a>
+                                                   </td>
+                                                   <td>
+                                                      <a href="#"
+                                                         ><img
+                                                            src="https://res.cloudinary.com/airbnb-management/image/upload/v1740738875/facebook_nbxxo0.png"
+                                                            width="20px"
+                                                            alt="Facebook"
+                                                      /></a>
+                                                   </td>
+                                                   <td>
+                                                      <a href="#"
+                                                         ><img
+                                                            src="https://res.cloudinary.com/airbnb-management/image/upload/v1740738875/instagram_w3gs0m.png"
+                                                            width="20px"
+                                                            alt="Instagram"
+                                                      /></a>
+                                                   </td>
+                                                </tr>
+                                             </table>
+                                          </td>
+                                       </tr>
+                                    </table>
+                                 </div>
+                                 <h1>Your reservation is confirmed</h1>
+                                 <table
+                                    width="100%"
+                                    cellpadding="0"
+                                    cellspacing="0"
+                                 >
+                                    <tr>
+                                       <td>
+                                          <div style="padding: 0px 20px">
+                                             <a href="/">
+                                                <img
+                                                   src="{{thumbnail}}"
+                                                   alt=""
+                                                   style="
+                                                      width: 100%;
+                                                      height: 250px;
+                                                      object-fit: cover;
+                                                      border-radius: 16px;
+                                                   "
+                                                />
+                                             </a>
+                                             <h2>
+                                                <a href="/">{{propertyName}}</a>
+                                             </h2>
+                                             <p
+                                                style="
+                                                   color: #717171;
+                                                   font-size: 14px;
+                                                "
+                                             >
+                                                <img
+                                                   src="https://res.cloudinary.com/airbnb-management/image/upload/v1740738875/pin_pves5k.png"
+                                                   alt=""
+                                                   width="10px"
+                                                   style="margin-right: 4px"
+                                                />
+                                                {{propertyAddress}}
+                                             </p>
+                                          </div>
+                                       </td>
+                                    </tr>
+                                 </table>
+                                 <hr
+                                    style="
+                                       margin: 20px 0;
+                                       border-top: 1px solid #ededed;
+                                    "
+                                 />
+                                 <table
+                                    width="100%"
+                                    cellpadding="0"
+                                    cellspacing="0"
+                                 >
+                                    <tr>
+                                       <td
+                                          style="
+                                             text-align: center;
+                                             padding: 0px 20px;
+                                          "
+                                       >
+                                          <h3
+                                             style="
+                                                text-align: center;
+                                                color: #474747;
+                                                font-weight: 600;
+                                             "
+                                          >
+                                             Reservation Details
+                                          </h3>
+                                          <table
+                                             class="details_table"
+                                             style="margin-top: 10px"
+                                          >
+                                             <tr>
+                                                <td align="left">
+                                                   Reservation Code
+                                                </td>
+                                                <td align="right">
+                                                   <strong
+                                                      >{{reservationCode}}</strong
+                                                   >
+                                                </td>
+                                             </tr>
+                                             <tr>
+                                                <td align="left">Guest Name</td>
+                                                <td align="right">
+                                                   <strong
+                                                      >{{guestName}}</strong
+                                                   >
+                                                </td>
+                                             </tr>
+                                             <tr>
+                                                <td align="left">
+                                                   Guest Email
+                                                </td>
+                                                <td align="right">
+                                                   <strong
+                                                      >{{guestEmail}}</strong
+                                                   >
+                                                </td>
+                                             </tr>
+                                             <tr>
+                                                <td align="left">Check-in</td>
+                                                <td align="right">
+                                                   <strong
+                                                      >{{checkInDate}}</strong
+                                                   >
+                                                </td>
+                                             </tr>
+                                             <tr>
+                                                <td align="left">Check-out</td>
+                                                <td align="right">
+                                                   <strong
+                                                      >{{checkOutDate}}</strong
+                                                   >
+                                                </td>
+                                             </tr>
+                                             <tr>
+                                                <td align="left">Nights</td>
+                                                <td align="right">
+                                                   <strong>{{nights}}</strong>
+                                                </td>
+                                             </tr>
+                                          </table>
+                                          <div
+                                             style="
+                                                text-align: center;
+                                                margin-top: 20px;
+                                             "
+                                          >
+                                             <a href="/" class="btn"
+                                                >View Full Details</a
+                                             >
+                                          </div>
+                                       </td>
+                                    </tr>
+                                 </table>
+                                 <hr
+                                    style="
+                                       margin: 20px 0;
+                                       border-top: 1px solid #ededed;
+                                    "
+                                 />
+
+                                 <table
+                                    width="100%"
+                                    cellpadding="0"
+                                    cellspacing="0"
+                                 >
+                                    <tr>
+                                       <td align="center">
+                                          <table class="footer_table">
+                                             <tr>
+                                                <td><a href="/">Terms</a></td>
+                                                <td><a href="/">Privacy</a></td>
+                                                <td><a href="/">Cookies</a></td>
+                                                <td>
+                                                   <a href="/">Contact us</a>
+                                                </td>
+                                             </tr>
+                                          </table>
+                                          <p
+                                             style="
+                                                color: #717171;
+                                                text-align: center;
+                                                font-size: 14px;
+                                                width: 340px;
+                                                line-height: 20px;
+                                                margin: 0 auto 20px;
+                                             "
+                                          >
+                                             © 2024 FRANK PORTER VACATION HOMES
+                                             RENTAL L.L.C. All rights reserved.
+                                          </p>
+                                       </td>
+                                    </tr>
+                                 </table>
+                              </div>
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </td>
+            </tr>
+         </tbody>
+      </table>
+   </body>
+</html>

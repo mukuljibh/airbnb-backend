@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Sign Up Verification</title>
+      <style type="text/css">
+         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+         * {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+         }
+         a {
+            text-decoration: none !important;
+            color: #5c5c5c !important;
+         }
+         .header {
+            border-bottom: 1px solid #ddd;
+            padding: 16px 20px;
+         }
+         h1 {
+            text-align: center;
+            font-size: 24px;
+            font-weight: 600;
+            margin-top: 30px;
+            margin-bottom: 10px;
+            color: #bb9e6c;
+         }
+         h3 {
+            font-size: 20px;
+            text-align: center;
+            color: #474747;
+            font-weight: 600;
+         }
+         .otp {
+            text-align: center;
+            font-size: 22px;
+            font-weight: 700;
+            color: #bb9e6c;
+            margin-top: 20px;
+            letter-spacing: 2px;
+         }
+         .footer_table {
+            text-align: center;
+         }
+         .footer_table td {
+            padding: 10px 10px;
+            font-size: 14px;
+            color: #717171;
+         }
+         .footer_table a {
+            text-decoration: underline !important;
+            text-underline-offset: 2px;
+            transition: all 0.3s;
+         }
+         .footer_table a:hover {
+            color: #bb9e6c !important;
+         }
+      </style>
+   </head>
+   <body>
+      <table
+         style="background-color: #ebebeb"
+         width="100%"
+         cellpadding="0"
+         cellspacing="0"
+      >
+         <tbody>
+            <tr>
+               <td
+                  align="center"
+                  valign="top"
+                  style="width: 600px; padding: 20px 0"
+               >
+                  <table width="600" cellpadding="0" cellspacing="0">
+                     <tbody>
+                        <tr>
+                           <td style="background-color: white">
+                              <div class="header">
+                                 <table
+                                    width="100%"
+                                    cellpadding="0"
+                                    cellspacing="0"
+                                 >
+                                    <tr>
+                                       <td align="left">
+                                          <img
+                                             src="https://frankporter.mexxiss.com/assets/logo-BitIhuvu.png"
+                                             alt="Logo"
+                                             width="120"
+                                          />
+                                       </td>
+                                       <td align="right">
+                                          <table
+                                             cellspacing="10"
+                                             cellpadding="0"
+                                             border="0"
+                                          >
+                                             <tr>
+                                                <td>
+                                                   <a href="#"
+                                                      ><img
+                                                         src="https://res.cloudinary.com/airbnb-management/image/upload/v1740738875/twitter_ldaxhg.png"
+                                                         width="20px"
+                                                         alt="X"
+                                                   /></a>
+                                                </td>
+                                                <td>
+                                                   <a href="#"
+                                                      ><img
+                                                         src="https://res.cloudinary.com/airbnb-management/image/upload/v1740738875/facebook_nbxxo0.png"
+                                                         width="20px"
+                                                         alt="Facebook"
+                                                   /></a>
+                                                </td>
+                                                <td>
+                                                   <a href="#"
+                                                      ><img
+                                                         src="https://res.cloudinary.com/airbnb-management/image/upload/v1740738875/instagram_w3gs0m.png"
+                                                         width="20px"
+                                                         alt="Instagram"
+                                                   /></a>
+                                                </td>
+                                             </tr>
+                                          </table>
+                                       </td>
+                                    </tr>
+                                 </table>
+                              </div>
+
+                              <h1>Verify Your Email</h1>
+                              <p
+                                 style="
+                                    color: #5c5c5c;
+                                    font-size: 14px;
+                                    padding: 0 20px;
+                                    margin-top: 16px;
+                                    text-align: center;
+                                 "
+                              >
+                                 Hi {{name}}, thank you for signing up!<br />
+                                 To complete your registration, please use the
+                                 OTP below to verify your email address:
+                              </p>
+
+                              <p class="otp">{{otp}}</p>
+
+                              <p
+                                 style="
+                                    color: #5c5c5c;
+                                    font-size: 14px;
+                                    padding: 0 20px;
+                                    margin-top: 16px;
+                                    text-align: center;
+                                 "
+                              >
+                                 This OTP is valid for a limited time. If you
+                                 didn’t sign up, you can safely ignore this
+                                 email.
+                              </p>
+
+                              <hr
+                                 style="
+                                    margin: 20px 0;
+                                    border-top: 1px solid #ededed;
+                                 "
+                              />
+
+                              <table
+                                 width="100%"
+                                 cellpadding="0"
+                                 cellspacing="0"
+                              >
+                                 <tr>
+                                    <td align="center">
+                                       <table class="footer_table">
+                                          <tr>
+                                             <td><a href="/">Terms</a></td>
+                                             <td><a href="/">Privacy</a></td>
+                                             <td><a href="/">Cookies</a></td>
+                                             <td><a href="/">Contact us</a></td>
+                                          </tr>
+                                       </table>
+                                       <p
+                                          style="
+                                             color: #717171;
+                                             text-align: center;
+                                             font-size: 14px;
+                                             width: 340px;
+                                             line-height: 20px;
+                                             margin: 0 auto 20px;
+                                          "
+                                       >
+                                          © 2024 FRANK PORTER VACATION HOMES
+                                          RENTAL L.L.C. All rights reserved.
+                                       </p>
+                                    </td>
+                                 </tr>
+                              </table>
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </td>
+            </tr>
+         </tbody>
+      </table>
+   </body>
+</html>
