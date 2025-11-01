@@ -8,8 +8,7 @@
       "start": "tsc && node dist/src/app.js",
       "dev": "ts-node-dev --respawn --transpile-only ./src/app.ts",
       "lint": "eslint \"**/*.ts\"",
-      "test": "echo \"Error: no test specified\" && exit 1",
-      "postinstall": "patch-package"
+      "test": "echo \"Error: no test specified\" && exit 1"
    },
    "keywords": [],
    "author": "",
@@ -34,7 +33,7 @@
       "@types/passport-local": "^1.0.38",
       "@types/pdfkit": "^0.13.9",
       "@types/promise-queue": "^2.2.3",
-      "@types/socket.io": "^2.1.11",
+      "@types/socket.io": "^3.0.2",
       "@types/swagger-ui-express": "^4.1.7",
       "@typescript-eslint/eslint-plugin": "^8.32.1",
       "@typescript-eslint/parser": "^8.32.1",
@@ -105,7 +104,6 @@
       "redis": "^4.7.0",
       "sharp": "^0.34.0",
       "socket.io": "^4.8.1",
-      "socket.io-client": "^4.8.1",
       "stripe": "^18.5.0",
       "swagger-autogen": "^2.23.7",
       "swagger-jsdoc": "^6.2.8",
