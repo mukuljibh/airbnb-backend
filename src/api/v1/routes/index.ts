@@ -6,7 +6,7 @@ import adminRoutes from './admin/index';
 import otherRoutes from './others/index';
 import { placeCurrencyIntoRequest } from '../middleware/currency/currency.middleware';
 // import { attachSessionOptions } from '../middleware/sessions/session.middleware';
-import createPages from '../middleware/pagination/pagination.middleware';
+import parseQueryOptions from '../middleware/pagination/pagination.middleware';
 
 const router = express.Router();
 
@@ -20,8 +20,7 @@ const router = express.Router();
 
 const registerOptions = [
     placeCurrencyIntoRequest,
-    // attachSessionOptions,
-    createPages
+    parseQueryOptions
 ];
 // General user routes
 router.use('/guest', registerOptions, guestRoutes);

@@ -220,7 +220,6 @@ export async function getAllConversationsList(req: Request, res: Response) {
     ]);
 
     const result = formatPaginationResponse(roomResult, roomCount?.count || 0, res.locals.pagination);
-    console.dir({ result }, { depth: null });
 
     return sendApiResponseHelper(res, { statusCode: 200, raw: true, data: result })
 
