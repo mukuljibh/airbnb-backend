@@ -9,9 +9,9 @@
       "resolveJsonModule": true,
       "sourceMap": true,
       "outDir": "dist",
-      "strict": false,
+      // "strict": true,
       "incremental": true
    },
-   "include": ["src/**/*", "src/types/**/*"],
+   "include": ["src/**/*"],
    "exclude": ["node_modules", "dist"]
 }
