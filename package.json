@@ -26,6 +26,7 @@
       "@types/geoip-lite": "^1.4.4",
       "@types/jsonwebtoken": "^9.0.8",
       "@types/lodash.pick": "^4.4.9",
+      "@types/long": "^5.0.0",
       "@types/multer": "^1.4.12",
       "@types/nodemailer": "^6.4.17",
       "@types/passport-facebook": "^3.0.3",
