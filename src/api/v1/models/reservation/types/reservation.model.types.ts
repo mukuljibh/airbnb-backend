@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose, { Document } from 'mongoose';
 import { IUser } from '../../user/types/user.model.types';
 
 export interface IReservation extends Document {

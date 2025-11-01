@@ -1,4 +1,4 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose, { Document, Schema } from 'mongoose';
 import { IProperty } from '../../property/types/property.model.types';
 
 // Obsolete: Previously used, not in use anymore.

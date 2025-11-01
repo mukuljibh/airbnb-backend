@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose, { Document } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 export interface ITransaction extends Document {
    _id: mongoose.Types.ObjectId;
