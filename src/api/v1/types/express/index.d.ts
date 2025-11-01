@@ -1,4 +1,3 @@
-// types/express/index.d.ts
 import { Currencies } from 'country-to-currency';
 import { IPaginationAttributes } from '../../utils/pagination/pagination.types';
 import 'express';
@@ -16,6 +15,11 @@ export interface IRealTimeSessionOptions {
     deviceType: DeviceType,
     cookieScope: string,
 }
+
+declare module "express-session" {
+    interface SessionData extends PassportSession { }
+}
+
 declare module 'express-serve-static-core' {
     interface Locals {
         pagination?: IPaginationAttributes
@@ -27,14 +31,13 @@ declare module 'express-serve-static-core' {
         sessionOptions: SessionUserOptions & IRealTimeSessionOptions
     }
     interface Request {
-        user?: ISessionUser,
-
+        user?: ISessionUser;
+        session: Session & SessionData;  // ← ADD THIS
+        sessionID: string;               // ← ADD THIS  
+        logout: (callback?: (err: any) => void) => void;  // ← ADD THIS
+        logIn: (user: any, callback?: (err: any) => void) => void;  // ← ADD THIS
+        isAuthenticated: () => boolean;  // ← ADD THIS
     }
-}
-
-/* eslint-disable @typescript-eslint/no-empty-object-type */
-declare module "express-session" {
-    interface SessionData extends PassportSession { }
 }
 
 export interface SortOptions {
@@ -46,4 +49,4 @@ export interface SortOptions {
 export interface SearchOptions {
     searchTerm: string;
 }
-export type SearchSortOptions = SortOptions & SearchOptions
+export type SearchSortOptions = SortOptions & SearchOptions;
