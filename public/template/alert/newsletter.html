@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Newsletter Subscription - Airbnb</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+      background-color: #f7f7f7;
+      margin: 0;
+      padding: 0;
+    }
+    table { border-collapse: collapse; }
+    .airbnb-logo {
+      color: #00858e;
+      font-weight: bold;
+      font-size: 18px;
+      line-height: 32px;
+    }
+    .main-heading {
+      font-size: 26px;
+      font-weight: 700;
+      color: #3c3c3c;
+      margin: 20px 0 12px 0;
+      text-align: center;
+    }
+    .sub-heading {
+      font-size: 18px;
+      font-weight: 500;
+      color: #555;
+      margin: 0 0 24px 0;
+      text-align: center;
+    }
+    .cta-button {
+      background-color: #00858e;
+      color: #ffffff !important;
+      padding: 14px 28px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 16px;
+      display: inline-block;
+      margin: 24px auto;
+      text-align: center;
+      border: none;
+      cursor: pointer;
+    }
+    .cta-button:hover { background-color: #037e87; }
+    .footer-logo {
+      color: #00858e;
+      font-weight: bold;
+      font-size: 16px;
+      text-align: center;
+      line-height: 24px;
+    }
+    .footer-text {
+      font-size: 12px;
+      color: #717171;
+      line-height: 1.4;
+    }
+    .footer-links a {
+      font-size: 12px;
+      color: #717171;
+      margin: 0 8px;
+      text-decoration: none;
+    }
+    .footer-links a:hover { color: #00858e; }
+    .social-link {
+      width: 24px;
+      height: 24px;
+      background-color: #dddddd;
+      border-radius: 12px;
+      text-align: center;
+      line-height: 24px;
+      text-decoration: none;
+      color: #666666;
+      font-size: 12px;
+      display: inline-block;
+    }
+    .social-link:hover { background-color: #cccccc; }
+  </style>
+</head>
+<body>
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f7f7f7; padding: 20px 0;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-width: 600px;">
+          <tr>
+            <td style="padding: 24px 24px 0;">
+              <div class="airbnb-logo">AIRBNB</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding: 0 24px 32px; text-align: center;">
+              <h1 class="main-heading">Welcome to Our Newsletter! 🎉</h1>
+              <p class="sub-heading">
+                Thanks for subscribing, {{email}}!
+              </p>
+              <p style="font-size: 16px; color: #555; margin-bottom: 16px; line-height: 1.6;">
+                You’re now part of our community and will receive the latest updates, travel inspiration, and exclusive offers straight to your inbox.
+              </p>
+              <p style="font-size: 16px; color: #555; margin-bottom: 24px; line-height: 1.6;">
+                Stay tuned — exciting content is on the way!
+              </p>
+
+              <a href="https://mainwebsite-dev.netlify.app/" class="cta-button">Explore More</a>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding: 24px; border-top: 1px solid #e0e0e0; text-align:center;">
+              <div class="footer-links">
+                <a href="https://mainwebsite-dev.netlify.app/policies?type=termsConditions">Terms</a> | 
+                <a href="https://mainwebsite-dev.netlify.app/policies?type=privacyPolicy">Privacy</a> | 
+                <a href="https://mainwebsite-dev.netlify.app/contact-us">Contact</a>
+              </div>
+              <p style="color: #717171; font-size: 12px; margin: 16px auto; line-height: 18px; max-width: 400px;">
+                © 2025 Airbnb Ireland UC. All rights reserved.  
+                8 Hanover Quay, Dublin 2, Ireland
+              </p>
+              <div>
+                <a href="#" class="social-link">f</a>
+                <a href="#" class="social-link">@</a>
+                <a href="#" class="social-link">in</a>
+              </div>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

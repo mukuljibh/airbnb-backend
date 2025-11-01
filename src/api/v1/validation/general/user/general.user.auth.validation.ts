@@ -2,10 +2,9 @@ import { body, validationResult } from 'express-validator';
 import parsePhoneNumber from 'libphonenumber-js';
 import {
    emailRegix,
-   nameRegix,
-   passwordRegix,
+   passwordRegex,
    DobRegix,
-} from '../../../utils/regex/regex.constant';
+} from '../../../constant/regex.constant';
 import { pick } from 'lodash';
 
 export const validateSendOtp = [
@@ -112,19 +111,21 @@ export const ValidateLogin = [
 ];
 export const validateProfile = [
    body('firstName')
+      .trim()
       .notEmpty()
-      .withMessage('firstName is mandatory')
-      .bail()
-      .custom((value) => nameRegix.test(value))
-      .withMessage('Name at least 3 characters long'),
+      .withMessage('First name is required')
+      .isLength({ min: 2, max: 25 })
+      .withMessage('First name must be at least 2 characters'),
 
    body('lastName')
+      .trim()
       .notEmpty()
       .withMessage('lastName is mandatory')
-      .bail()
-      .custom((value) => nameRegix.test(value))
-      .withMessage('Name at least 3 characters long'),
+      .isLength({ min: 2, max: 25 })
+      .withMessage('First name must be at least 2 characters'),
+
    body('contactEmail')
+      .trim()
       .notEmpty()
       .withMessage('contact email is mandatory')
       .bail()
@@ -132,10 +133,11 @@ export const validateProfile = [
       .withMessage('Email is invalid'),
 
    body('password')
+      .trim()
       .notEmpty()
       .withMessage('password is mandatory')
       .bail()
-      .custom((value) => passwordRegix.test(value))
+      .custom((value) => passwordRegex.test(value))
       .withMessage(
          'Password must be 8-15 characters, including an uppercase letter, lowercase letter, number, and special character (@.#$!%*?&)—no spaces.',
       ),
@@ -163,7 +165,7 @@ export const validateChangePassword = [
       .notEmpty()
       .withMessage('password is mandatory')
       .bail()
-      .custom((value) => passwordRegix.test(value))
+      .custom((value) => passwordRegex.test(value))
       .withMessage(
          'Password must be 8-15 characters, including an uppercase letter, lowercase letter, number, and special character (@.#$!%*?&)—no spaces.',
       ),

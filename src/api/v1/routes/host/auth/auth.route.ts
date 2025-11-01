@@ -1,0 +1,56 @@
+import express from 'express';
+import * as commonAuthController from "../../../controllers/common/auth/auth.controller"
+
+import * as generalUserAuthValidation from '../../../validation/general/user/general.user.auth.validation';
+import { verifyProfileSession } from '../../../middleware/authentication/verifyProfileSession';
+import { verifyUserOtpSession } from '../../../middleware/authentication/verifyUserOtpSession';
+import verifyRoutesAndAuthorizedRoles from '../../../middleware/authorization/verifyRoutesAndAuthorizedRoles';
+import { COOKIE_KEYS } from '../../../constant/cookie.key.constant';
+const router = express.Router();
+
+/* 
+|--------------------------------------------------------------------------
+| Authentication Routes
+|--------------------------------------------------------------------------
+| - Handles OTP-based authentication, login, logout, and password changes.
+| - Includes session-based profile submission.
+*/
+router.post(
+    '/send-otp',
+    generalUserAuthValidation.validateSendOtp,
+    commonAuthController.handleSendOtp,
+);
+router.post(
+    '/verify-otp',
+    generalUserAuthValidation.validateVerifyOtp,
+    verifyUserOtpSession,
+    commonAuthController.verifyUserOtp,
+);
+router.post(
+    '/logout',
+    verifyRoutesAndAuthorizedRoles('host'),
+    commonAuthController.userLogout,
+);
+router.post(
+    '/login',
+    generalUserAuthValidation.ValidateLogin,
+    commonAuthController.userLogin,
+);
+router.patch(
+    '/change-password',
+    generalUserAuthValidation.validateChangePassword,
+    verifyProfileSession(COOKIE_KEYS.PROFILE_SESSION_ID),
+    commonAuthController.userChangePassword,
+);
+
+/* 
+|--------------------------------------------------------------------------
+| OAuth Authentication Routes
+|--------------------------------------------------------------------------
+| - Google and Facebook authentication using Passport.js.
+| - Redirects to client-side login page on failure.
+*/
+
+router.post('/login/google', commonAuthController.googleLogin);
+
+export default router

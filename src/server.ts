@@ -1,53 +1,55 @@
 import 'dotenv/config';
-
+import "express-async-errors"
+import { NextFunction, Request, Response } from 'express';
 import express, { Application } from 'express';
-import { Request, Response } from 'express';
-import cors from 'cors';
 import connectDatabase from './api/v1/config/db';
-// import fs from 'fs';
-// import https from 'https';
+import cors from 'cors';
+import env from './api/v1/config/env';
 import http from 'http';
 import router from './api/v1/routes/index';
 import cookieParser from 'cookie-parser';
-import { Cookie, Session } from 'express-session';
 import MongoStore from 'connect-mongo';
-import { passportConfig } from './api/v1/config/passport';
 import swaggerUi from 'swagger-ui-express';
 import swaggerDocument from './../swagger.json';
-// import { auth } from "./app/Middlewares";
 import path from 'path';
-import passport from 'passport';
 import { ApiError } from './api/v1/utils/error-handlers/ApiError';
-import { ISessionUser } from './api/v1/models/user/types/user.model.types';
-import { sessionConfig } from './api/v1/config/session';
-import { stopPolling } from './api/v1/events/reservation/reservation.emitter';
+import mongoSanitize from 'express-mongo-sanitize';
+import { agenda, startAgenda } from './api/v1/config/agenda';
+import { scheduleCleanupResource } from './api/uploads/jobs';
+import { createPassportSessionhandler, PassportSessionHandlerType } from './api/v1/config/passport/passport.helper';
+import { logger } from './api/v1/config/logger/logger';
+import useragent from 'express-useragent';
+import { createAuthSessionManager, SessionMangerType, SetupPlaceSessionConfig, setupPlaceSessionConfig } from './api/v1/config/session/session.helper';
+
 const version = '0.0.1';
 const jsonParser = express.json();
 
 export const mongoStoreSession = MongoStore.create({
-   mongoUrl: process.env.MONGO_URL,
+   mongoUrl: env.MONGO_URL,
    collectionName: 'sessions',
 });
 
-export interface ISession extends Session {
-   passport?: {
-      user: ISessionUser;
-   };
-   expires?: Date;
-   cookie: Cookie;
-}
+
 
 export class Server {
    public app: Application;
    private server: http.Server | null = null;
    public port: number;
+   private expressSessionHandler: SessionMangerType
+   private passportSessionHandler: PassportSessionHandlerType
+   private placeSessionConfig: SetupPlaceSessionConfig
 
    constructor(port?: number) {
       this.app = express();
+      this.expressSessionHandler = createAuthSessionManager(this.app)
+      this.passportSessionHandler = createPassportSessionhandler(this.app)
+      this.placeSessionConfig = setupPlaceSessionConfig(this.app);
+
+
       this.port = !port
-         ? process.env.ENVIRONMENT == 'PROD'
-            ? Number(process.env.PROD_PORT)
-            : Number(process.env.LOCAL_PORT)
+         ? env.NODE_ENV == 'production'
+            ? Number(env.PROD_PORT)
+            : Number(env.LOCAL_PORT)
          : port;
       this.app.use(
          '/public',
@@ -69,9 +71,15 @@ export class Server {
       );
    }
 
+   registerSchedulars() {
+      scheduleCleanupResource()
+   }
+
    registerMiddlewares() {
-      passportConfig();
-      this.app.set('trust proxy', 1); // Add this before middleware registration
+      this.app.set('trust proxy', 1);
+      this.app.disable("etag");
+
+      this.app.use(express.urlencoded({ limit: '50mb', extended: true }));
       this.app.use((req, res, next) => {
          if (
             req.originalUrl === '/api/v1/others/webhook' ||
@@ -83,119 +91,48 @@ export class Server {
          }
       });
 
-      this.app.use(cookieParser());
-      //  sessions
-      sessionConfig(this.app);
+      this.app.use(mongoSanitize({ replaceWith: '_', allowDots: false }));
 
-      //this middle ware manually push valid session from db store when cookies not available from client after that passport will take care of everything.
-      this.app.use(async (req: Request, res, next) => {
-         const sessionId = req.headers['x-session-id'];
-         if (
-            !sessionId ||
-            typeof sessionId !== 'string' ||
-            sessionId.trim() === ''
-         ) {
-            return next();
-         }
-         const existingSession = req.session;
-         const isValidSession = (session: ISession) => {
-            return (
-               session?.passport &&
-               typeof session?.passport === 'object' &&
-               session?.passport?.user
-            );
-         };
-         if (!isValidSession(existingSession)) {
-            try {
-               const session = await new Promise<ISession | null>(
-                  (resolve, reject) => {
-                     mongoStoreSession.get(sessionId, (err, session) => {
-                        if (err) {
-                           reject(err);
-                           return;
-                        }
-                        if (!session) {
-                           console.log('Session not found or expired.');
-                           resolve(null);
-                           return;
-                        }
-                        session['expires'] = session.cookie.expires;
-                        resolve(session as ISession);
-                     });
-                  },
-               );
-
-               if (session) {
-                  req.sessionID = sessionId;
-                  req.session['passport'] = session.passport;
-
-                  console.log('Session restored:', session);
-               }
-            } catch (err) {
-               console.error('Error retrieving session:', err);
-               return next(err);
-            }
-         }
-
-         return next();
-      });
-
-      this.app.use(passport.initialize());
-      this.app.use(passport.session());
-      //empty out the user session if csrf token mismatch
-      this.app.use((req, res, next) => {
-         const clientType = req.headers['client-type'];
-
-         if (!req.session || clientType == 'Mobile') {
-            return next();
-         }
-         const csrfTokenFromSession = req.session?.['csrf'];
-         const tokenFromClientHeaders = req.headers['x-csrf-token'];
-         if (csrfTokenFromSession !== tokenFromClientHeaders) {
-            req.user = undefined;
-         }
-         next();
-      });
-      this.app.use(express.urlencoded({ limit: '50mb', extended: true }));
       this.app.use(
          cors({
-            origin: (origin, callback) => {
-               // Allow requests from any origin
-               callback(null, true);
-            },
-            // origin: "*",
-            credentials: true, // Allow cookies and other credentials
-            methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+            origin: (origin, callback) => callback(null, true),
+            credentials: true,
+            methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
             allowedHeaders: [
                'Content-Type',
                'Authorization',
                'x-csrf-token',
                'client-type',
                'x-session-id',
+               'x-currency'
             ],
             exposedHeaders: ['set-cookie'],
          }),
       );
-      // global error handler
-      router.use((err, req, res, next) => {
-         if (err instanceof ApiError) {
-            res.status(err.statusCode).json({
-               status: err.statusCode,
-               success: err.success,
-               message: err.message,
-               errorKey: err.errorKey,
-               data: err.data,
-            });
-            next();
-         } else {
-            res.status(500).json({ message: err.message });
-         }
-      });
+
+      this.app.use(useragent.express());
+      this.app.use(cookieParser());
+
+      this.placeSessionConfig.attachPreSessionOptions()
+      // Sessions
+      this.expressSessionHandler.syncSessionCookie();
+      this.expressSessionHandler.intializeExpressSession();
+      this.placeSessionConfig.initializeSessionOptions()
+      this.expressSessionHandler.cleanupSessionCookie();
+
+      // Passport
+      this.passportSessionHandler.intializePassportStrategies();
+      this.passportSessionHandler.registerMainPassportSession();
+
+      // CSRF protection (after session + passport)
+      this.expressSessionHandler.enforceCsrfProtection();
    }
+
 
    regsiterRoutes() {
       //api version v1 parent path setup here
       this.app.use('/api/v1', router);
+
       this.app.use(
          '/api-docs',
          swaggerUi.serve,
@@ -204,10 +141,46 @@ export class Server {
 
       this.app.get('/', (req: Request, res: Response) => {
          res.status(200).json({
-            message: `App running on version ch  ${version}`,
+            message: `App running on version ${version}`,
+         });
+      });
+      this.app.use("*", (_req: Request, res: Response) => {
+         res.status(404).json({
+            status: 404,
+            success: false,
+            message: "Route not found please recheck api end point.",
+         });
+      });
+      // global error handler
+      this.app.use((err: ApiError | unknown, _req: Request, res: Response, _next: NextFunction) => {
+
+         logger.debug(`${err instanceof Error ? err?.message : err}`, 'GLOBAL_ERROR_MIDDLEWARE');
+         if (err instanceof SyntaxError && "body" in err) {
+            return res.status(400).json({
+               status: 400,
+               success: false,
+               message: "Invalid JSON in request body",
+            });
+         }
+
+         if (err instanceof ApiError) {
+            return res.status(err.statusCode).json({
+               status: err.statusCode,
+               success: err.success,
+               message: err.message,
+               errorKey: err.errorKey,
+               data: err.data,
+            });
+         }
+         return res.status(500).json({
+            status: 500,
+            success: false,
+            message: "Internal Server Error",
          });
       });
    }
+
+
    async handleShutdown(signal: string) {
       console.log(`${signal} received, shutting down gracefully`);
 
@@ -221,17 +194,15 @@ export class Server {
                      return;
                   }
                   console.log('HTTP server closed');
-                  stopPolling();
-                  process.exit(0);
 
-                  // try {
-                  //    // await closeWorkers();
-                  //    console.log('All connections closed');
-                  //    resolve();
-                  // } catch (workerErr) {
-                  //    console.error('Error closing workers:', workerErr);
-                  //    reject(workerErr);
-                  // }
+                  try {
+                     await agenda.stop();
+                     await agenda.close();
+                     console.log("Agenda stopped gracefully");
+                  } catch (err) {
+                     console.error("Error stopping Agenda:", err);
+                  }
+                  resolve();
                });
             });
          } else {
@@ -244,33 +215,19 @@ export class Server {
       }
    }
 
+
    start() {
-      const env = process.env.ENVIRONMENT;
-      if (env == 'PROD') {
-         // const port = Number(this.port);
-         // console.log(env, port);
-         // const sslKey = fs.readFileSync(
-         //    process.env.SSL_PRIV_KEY as string,
-         //    'utf-8',
-         // );
-         // const sslCert = fs.readFileSync(
-         //    process.env.SSL_CERT as string,
-         //    'utf-8',
-         // );
-         // const options: https.ServerOptions = {
-         //    key: sslKey,
-         //    cert: sslCert,
-         // };
-         this.server = http.createServer(this.app);
-         console.log(this.port);
+
+      const enviroment = env.NODE_ENV
+
+      this.server = http.createServer(this.app);
+      startAgenda().then(() => {
          this.server.listen(this.port, () => {
-            console.log(`PROD HTTPS Server running on port ${this.port}...`);
+            console.log(`${enviroment} HTTP Server running on port ${this.port}...`);
          });
-      } else {
-         this.server = http.createServer(this.app);
-         this.server.listen(this.port, () => {
-            console.log(`HTTP Server running on port ${this.port}...`);
-         });
-      }
+         this.registerSchedulars()
+      });
+      return this.server
    }
+
 }

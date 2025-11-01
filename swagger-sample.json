@@ -1,0 +1,655 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Guest Panel Apis",
+        "version": "1.0.0",
+        "description": "API documentation for user authentication and profile management."
+    },
+    "paths": {
+        "/api/v1/guest/auth/send-otp": {
+            "post": {
+                "summary": "Send OTP",
+                "tags":["Auth"],
+                "description": "This endpoint generates a One-Time Password (OTP) and sends it to either the specified email address or phone number, depending on the criteria provided. If the criteria is 'EMAIL', an OTP will be sent to the specified email address, and phone numbers are not allowed. If the criteria is 'PHONE', an OTP will be sent to the specified phone number, and email addresses are not allowed.",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "criteria": {
+                                        "type": "string",
+                                        "enum": [
+                                            "EMAIL",
+                                            "PHONE"
+                                        ],
+                                        "example": "EMAIL",
+                                        "description": "The criteria to determine how OTP is sent (EMAIL or PHONE)."
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "user@example.com",
+                                        "description": "The email to send OTP if criteria is EMAIL."
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "example": "1234567890",
+                                        "description": "The phone number to send OTP if criteria is PHONE."
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "SIGN_UP_OTP",
+                                            "FORGET_PASSWORD_OTP"
+                                        ],
+                                        "example": "SIGN_UP_OTP",
+                                        "description": "The type of OTP request."
+                                    }
+                                },
+                                "required": [
+                                    "criteria",
+                                    "type"
+                                ],
+                                "allOf": [
+                                    {
+                                        "if": {
+                                            "properties": {
+                                                "criteria": {
+                                                    "const": "EMAIL"
+                                                }
+                                            }
+                                        },
+                                        "then": {
+                                            "required": [
+                                                "email"
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "if": {
+                                            "properties": {
+                                                "criteria": {
+                                                    "const": "PHONE"
+                                                }
+                                            }
+                                        },
+                                        "then": {
+                                            "required": [
+                                                "phone"
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OTP sent successfully",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "success": true,
+                                    "message": "OTP sent successfully.",
+                                    "expiry": "2025-01-13T12:00:00Z"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error or bad request",
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "criteria-missing": {
+                                        "summary": "Missing or invalid criteria",
+                                        "value": {
+                                            "success": false,
+                                            "message": "Criteria is mandatory and must be either EMAIL or PHONE."
+                                        }
+                                    },
+                                    "email-missing": {
+                                        "summary": "Missing email for criteria EMAIL",
+                                        "value": {
+                                            "success": false,
+                                            "message": "email is mandatory"
+                                        }
+                                    },
+                                    "phone-missing": {
+                                        "summary": "Missing phone for criteria PHONE",
+                                        "value": {
+                                            "success": false,
+                                            "message": "Phone is mandatory when criteria is PHONE"
+                                        }
+                                    },
+                                    "type-invalid": {
+                                        "summary": "Invalid type provided",
+                                        "value": {
+                                            "success": false,
+                                            "message": "Invalid type it should be one of the following SIGN_UP_OTP | FORGET_PASSWORD_OTP."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+      
+        "/api/v1/guest/auth/verify-otp": {
+            "post": {
+            "summary": "Verify OTP for signup or password recovery",
+            "description": "Verifies the OTP sent via EMAIL or PHONE based on criteria. If OTP is valid, proceeds with next steps. No need to pass email or phone all are automatically done using cookies session",
+            "consumes": ["application/json"],
+            "requestBody": {
+                "required": true,
+                "content": {
+                "application/json": {
+                    "schema": {
+                    "type": "object",
+                    "properties": {
+                        "otp": {
+                        "type": "string",
+                        "example": "123456",
+                        "description": "OTP received by user."
+                        }
+                    },
+                    "required": [ "otp"]
+                    
+                    }
+                }
+                }
+            },
+            "responses": {
+                "200": {
+                "description": "OTP successfully verified",
+                "content": {
+                    "application/json": {
+                    "example": {
+                        "success": true,
+                        "message": "Otp successfully verified."
+                    }
+                    }
+                }
+                },
+                "400": {
+                "description": "Validation error or bad request",
+                "content": {
+                    "application/json": {
+                    "examples": {
+                        "otp-missing": {
+                        "summary": "Missing OTP",
+                        "value": {
+                            "success": false,
+                            "message": "otp is mandatory"
+                        }
+                        }
+                    }
+                    }
+                }
+                },
+                "401": {
+                "description": "Invalid or expired OTP session",
+                "content": {
+                    "application/json": {
+                    "example": {
+                        "success": false,
+                        "message": "session expired or not exists yet."
+                    }
+                    }
+                }
+                }
+            },
+            "tags": ["Guest-Auth"]
+            }
+        },
+
+        "/api/v1/auth/user/submit-profile": {
+            "post": {
+                "summary": "Submit Profile",
+                "tags":["Auth"],
+                "description": "Submits the user profile details, including first name, last name, date of birth, and password, after verifying the user's session.",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "firstName": {
+                                        "type": "string",
+                                        "example": "John",
+                                        "description": "The user's first name (minimum 3 characters)."
+                                    },
+                                    "lastName": {
+                                        "type": "string",
+                                        "example": "Doe",
+                                        "description": "The user's last name (minimum 3 characters)."
+                                    },
+                                    "dob": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "31-10-2000",
+                                        "description": "The user's date of birth in 'DD-MM-YYYY' format."
+                                    },
+                                    "contactEmail": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "abc@gmail.com",
+                                        "description": "The user's contact email for furture making contact."
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "Password123!",
+                                        "description": "The user's password (8-15 characters, including an uppercase letter, lowercase letter, number, and special character)."
+                                    }
+                                },
+                                "required": [
+                                    "firstName",
+                                    "lastName",
+                                    "contactEmail",
+                                    "dob",
+                                    "password"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Profile successfully updated",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "success": true,
+                                    "message": "Profile updated successfully."
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error in the submitted profile data",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "errors": [
+                                        {
+                                            "msg": "firstName is mandatory",
+                                            "param": "firstName",
+                                            "location": "body"
+                                        },
+                                        {
+                                            "msg": "Password must be 8-15 characters, including an uppercase letter, lowercase letter, number, and special character",
+                                            "param": "password",
+                                            "location": "body"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "No token found in cookies or invalid session",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "No session token found"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Session expired",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Session expired"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/user/logout": {
+            "get": {
+                "summary": "Logout user",
+                "responses": {
+                    "200": {
+                        "description": "User logged out successfully",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "success": true,
+                                    "message": "User logged out successfully."
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "User Session does not exists",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "success": "false",
+                                    "message": "No valid session to logout."
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/user/login": {
+            "post": {
+                "summary": "User login",
+                "description": "This endpoint allows users to log in using either a valid email address or a valid phone number (as `loginKey`), along with a valid password. The password must meet certain complexity requirements.",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "loginKey": {
+                                        "type": "string",
+                                        "description": "Email address or phone number "
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "description": "Password"
+                                    }
+                                },
+                                "required": [
+                                    "email",
+                                    "password"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login successful",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "success": true,
+                                    "message": "Login successful."
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "User does not have account with us",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "success": "false",
+                                    "message": "User account doesnot exists"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "errors": [
+                                        {
+                                            "msg": "Invalid email",
+                                            "param": "email",
+                                            "location": "body"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/user/change-password": {
+            "patch": {
+                "summary": "Change Password",
+                "description": "Changes the user's password after verifying the user's session token and validating the new password.",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "password": {
+                                        "type": "string",
+                                        "example": "NewPassword123!",
+                                        "description": "The new password for the user (8-15 characters, including uppercase, lowercase, number, and special characters)."
+                                    }
+                                },
+                                "required": [
+                                    "password"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Password successfully changed",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "success": true,
+                                    "message": "Password successfully changed"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Password validation failed",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "success": false,
+                                    "message": "Password is mandatory"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Account does not exist or session expired",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "success": false,
+                                    "message": "Looks like you do not have account with us. kindly register."
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "No session token found",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "No session token found"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error while changing password",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "success": false,
+                                    "message": "Internal server error."
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": []
+            }
+        },
+        "api/v1/oauth/user/google": {
+            "get": {
+                "summary": "Authenticate using Google OAuth",
+                "operationId": "googleAuth",
+                "tags": [
+                    "OAuth"
+                ],
+                "description": "Redirects to Google for authentication. On success, redirects to the dashboard.",
+                "parameters": [
+                    {
+                        "name": "scope",
+                        "in": "query",
+                        "required": true,
+                        "description": "Google OAuth scope. 'profile' and 'email' are required.",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            },
+                            "example": [
+                                "profile",
+                                "email"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Redirect to Google login page"
+                    },
+                    "401": {
+                        "description": "Unauthorized access"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "api/v1/oauth/user/google/callback": {
+            "get": {
+                "summary": "Google OAuth Callback",
+                "operationId": "googleCallback",
+                "tags": [
+                    "OAuth"
+                ],
+                "description": "Handles the Google OAuth callback. Redirects to the dashboard on success or login page on failure.",
+                "responses": {
+                    "200": {
+                        "description": "Successfully authenticated with Google",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Redirect to /dashboard route in future"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized access"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "api/v1/oauth/user/facebook": {
+            "get": {
+                "summary": "Authenticate using Facebook OAuth",
+                "operationId": "facebookAuth",
+                "tags": [
+                    "OAuth"
+                ],
+                "description": "Redirects to Facebook for authentication. On success, redirects to the dashboard.",
+                "parameters": [
+                    {
+                        "name": "scope",
+                        "in": "query",
+                        "required": true,
+                        "description": "Facebook OAuth scope. 'public_profile' and 'email' are required.",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            },
+                            "example": [
+                                "public_profile",
+                                "email"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Redirect to Facebook login page"
+                    },
+                    "401": {
+                        "description": "Unauthorized access"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "api/v1/oauth/user/facebook/callback": {
+            "get": {
+                "summary": "Facebook OAuth Callback",
+                "operationId": "facebookCallback",
+                "tags": [
+                    "OAuth"
+                ],
+                "description": "Handles the Facebook OAuth callback. Redirects to the dashboard on success or login page on failure.",
+                "responses": {
+                    "200": {
+                        "description": "Successfully authenticated with Facebook",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Redirect to /dashboard route in future"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized access"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        }
+    }
+}

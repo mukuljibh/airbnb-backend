@@ -1,30 +1,21 @@
-import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
 import { ApiError } from '../../utils/error-handlers/ApiError';
-export function verifyProfileSession(sessionId: string) {
+import { decodeJwtToken } from '../../controllers/common/auth/utils/auth.utils';
+
+export function verifyProfileSession(sessionKey: string) {
    return async function verifyToken(
       req: Request,
       res: Response,
       next: NextFunction,
    ) {
-      try {
-         const profilesessionid = req.cookies?.[sessionId];
-         if (!profilesessionid) {
-            throw new ApiError(400, 'No Profile session token found');
-         }
-         jwt.verify(
-            profilesessionid,
-            process.env.ACCESS_TOKEN_KEY,
-            function (err) {
-               if (err) {
-                  console.error('JWT verification error:', err);
-                  throw new ApiError(400, 'Session expired.');
-               }
-               next();
-            },
-         );
-      } catch (err) {
-         next(err);
+      const profilesessionid = req.cookies?.[sessionKey];
+
+      const { data } = decodeJwtToken(profilesessionid)
+
+      if (!data) {
+         throw new ApiError(400, 'Your signup session has expired or is invalid. Please start again to continue.', { step: "login" });
       }
+
+      return next();
    };
 }

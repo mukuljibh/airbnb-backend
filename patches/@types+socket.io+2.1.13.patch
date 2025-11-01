@@ -1,0 +1,45 @@
+diff --git a/node_modules/@types/socket.io/index.d.ts b/node_modules/@types/socket.io/index.d.ts
+index a424fbd..e86f5b7 100644
+--- a/node_modules/@types/socket.io/index.d.ts
++++ b/node_modules/@types/socket.io/index.d.ts
+@@ -51,27 +51,27 @@ interface SocketIOStatic {
+     /**
+      * Default Server constructor
+      */
+-    new (): SocketIO.Server;
++    new(): SocketIO.Server;
+ 
+     /**
+      * Creates a new Server
+      * @param srv The HTTP server that we're going to bind to
+      * @param opts An optional parameters object
+      */
+-    new (srv: HttpServer | HttpsServer, opts?: SocketIO.ServerOptions): SocketIO.Server;
++    new(srv: HttpServer | HttpsServer, opts?: SocketIO.ServerOptions): SocketIO.Server;
+ 
+     /**
+      * Creates a new Server
+      * @param port A port to bind to, as a number, or a string
+      * @param An optional parameters object
+      */
+-    new (port: string | number, opts?: SocketIO.ServerOptions): SocketIO.Server;
++    new(port: string | number, opts?: SocketIO.ServerOptions): SocketIO.Server;
+ 
+     /**
+      * Creates a new Server
+      * @param A parameters object
+      */
+-    new (opts: SocketIO.ServerOptions): SocketIO.Server;
++    new(opts: SocketIO.ServerOptions): SocketIO.Server;
+ 
+     /**
+      * Backwards compatibility
+@@ -455,7 +455,7 @@ declare namespace SocketIO {
+     /**
+      * Options to pass to our server when creating it
+      */
+-    interface ServerOptions extends engine.ServerAttachOptions {
++    interface ServerOptions extends engine.AttachOptions {
+         /**
+          * The path to server the client file to.
+          * @default '/socket.io'

@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8" />
+   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+   <title>Property Deleted - Airbnb</title>
+   <style>
+      body {
+         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+         background-color: #f7f7f7;
+         margin: 0;
+         padding: 0;
+      }
+      .email-container {
+         max-width: 600px;
+         margin: auto;
+         background-color: #ffffff;
+         border-radius: 8px;
+         overflow: hidden;
+         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+      }
+      .header {
+         background-color: #008489;
+         color: #ffffff;
+         text-align: center;
+         padding: 20px;
+         font-size: 22px;
+         font-weight: bold;
+      }
+      .content {
+         padding: 30px;
+         color: #333333;
+         font-size: 16px;
+         line-height: 1.6;
+      }
+      .highlight {
+         color: #008489;
+         font-weight: bold;
+      }
+      .footer {
+         padding: 20px;
+         font-size: 14px;
+         text-align: center;
+         color: #999999;
+      }
+      .button {
+         display: inline-block;
+         margin-top: 20px;
+         background-color: #008489;
+         color: #ffffff !important;
+         padding: 12px 20px;
+         border-radius: 6px;
+         text-decoration: none;
+         font-weight: bold;
+      }
+   </style>
+</head>
+<body>
+   <div class="email-container">
+      <!-- Airbnb Header -->
+      <div class="header">Airbnb</div>
+
+      <!-- Email Body -->
+      <div class="content">
+         <p>Hi <span class="highlight">{{userName}}</span>,</p>
+
+         <p>
+            We wanted to let you know that the property 
+            <span class="highlight">"{{propertyName}}"</span> has been deleted 
+            from our platform.
+         </p>
+
+         <p>
+            <strong>Deleted By:</strong> {{deletedBy}}<br>
+            <strong>Reason:</strong> {{reason}}
+         </p>
+
+         <p>
+            If you believe this was done in error or would like more details, please contact our support team.
+         </p>
+
+         <a href="{{supportLink}}" class="button">Contact Support</a>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+         &copy; {{year}} Airbnb, Inc. All rights reserved.
+      </div>
+   </div>
+</body>
+</html>

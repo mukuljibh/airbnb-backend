@@ -1,5 +1,9 @@
-import { checkPromoValidForUser } from '../../../controllers/general/reservation/utils/general.reservation.utils';
+import axios from 'axios';
+import { checkPromoValidForUser } from '../../../controllers/general/reservation/services/payment.service';
 import { PromoCode } from '../../promo-code/promoCode';
+import cache from '../../../config/cache';
+import mongoose from 'mongoose';
+import moment from 'moment';
 
 export function calculateFee(rule, personCount, basePrice) {
    if (personCount <= rule.limit) {
@@ -28,7 +32,8 @@ export function calculateServiceFees(
    fees += calculateFee(rules.adult, adultCount, baseServiceFees);
    fees += calculateFee(rules.child, childCount, baseServiceFees);
    const total = baseServiceFees + fees;
-   return Number(total.toFixed(2));
+
+   return total
 }
 
 export function isWeekend(date: Date) {
@@ -52,44 +57,77 @@ export async function calculatePromoDiscount(
       };
    },
    promoCode: string,
+   currency: string,
 ) {
+   const { rate, targetCurrency } = await getCurrencyWiseRate(currency)
+
    const code = await PromoCode.findOne({ promoCode: promoCode.toUpperCase() });
    let { totalDiscount } = discounts;
    const { discountBreakdown } = discounts;
+   let promoCodeDiscount;
 
    if (code) {
-      const couponValidity = await code.validatePromoCode(basePrice);
+      const totalBasePriceAfterAllDiscountSoFar =
+         basePrice - totalDiscount || 0;
 
-      if (couponValidity.isValid) {
-         // Ensure promo code is valid before proceeding
-         const { discountType, discountValue } = code;
-         const isPromoValidForUser = await checkPromoValidForUser(
-            code._id,
-            userId,
-            code.maxPerUser,
-         );
+      const couponValidity = await code.validatePromoCode(totalBasePriceAfterAllDiscountSoFar, currency);
 
-         if (isPromoValidForUser.isValid) {
-            let promoCodeDiscount = 0;
-            switch (discountType) {
-               case 'percentage': {
-                  promoCodeDiscount = (basePrice * discountValue) / 100;
-                  break;
-               }
-               case 'flat': {
-                  promoCodeDiscount = discountValue;
-                  break;
-               }
-            }
+      const maximumDiscount = code.maximumDiscount * rate
 
-            // Add promo code discount separately
-            promoCodeDiscount = Number(promoCodeDiscount.toFixed(2));
-            totalDiscount = Number(
-               (totalDiscount + promoCodeDiscount).toFixed(2),
-            );
-            discountBreakdown.promoCodeDiscount = promoCodeDiscount;
+      if (!couponValidity.isValid) {
+         return {
+            totalDiscount,
+            discountBreakdown,
          }
       }
+      // Ensure promo code is valid before proceeding
+      let { discountType, discountValue } = code;
+
+      if (discountType === "flat") {
+         discountValue *= rate
+
+      }
+
+      const isPromoValidForUser = await checkPromoValidForUser(
+         code._id,
+         userId,
+         code.maxPerUser,
+      );
+      if (!isPromoValidForUser.isValid) {
+         return {
+            totalDiscount,
+            discountBreakdown,
+         }
+      }
+      promoCodeDiscount = 0;
+
+      switch (discountType) {
+
+         case 'percentage': {
+            promoCodeDiscount =
+               (totalBasePriceAfterAllDiscountSoFar * discountValue) /
+               100;
+            if (promoCodeDiscount > maximumDiscount) {
+               promoCodeDiscount = maximumDiscount
+            }
+            break;
+         }
+
+         case 'flat': {
+            promoCodeDiscount =
+               discountValue >= totalBasePriceAfterAllDiscountSoFar
+                  ? totalBasePriceAfterAllDiscountSoFar
+                  : discountValue;
+            break;
+         }
+      }
+
+      // Add promo code discount separately 
+      totalDiscount += promoCodeDiscount
+
+      discountBreakdown.promoCodeDiscount = promoCodeDiscount;
+
+
    }
 
    return {
@@ -97,11 +135,169 @@ export async function calculatePromoDiscount(
       discountBreakdown,
       promoApplied: code
          ? {
-              promoCodeId: code._id,
-              promoCode: code.promoCode,
-              discountType: code.discountType,
-              discountValue: code.discountValue,
-           }
-         : null, // If no valid promo, return null
+            promoCodeId: code._id,
+            promoCode: code.promoCode,
+            discountType: code.discountType,
+            baseDiscountValue: code.discountValue,
+            currencyExchangeRate: {
+               rate: rate,
+               baseCurrency: code.currency,
+               targetCurrency: targetCurrency,
+               timestamp: new Date()
+            },
+         }
+         : null,
    };
+}
+
+export async function getCurrencyWiseRate(targetCurrency = "INR", baseCurrency = "USD") {
+   const currencyFromApi = await getApiCurrency(baseCurrency)
+
+   const currencyRates = currencyFromApi?.[baseCurrency.toLowerCase()]
+
+   const rate = currencyRates?.[targetCurrency.toLowerCase()]
+
+   return { rate, targetCurrency }
+}
+
+export async function getApiCurrency(baseCurrency: string) {
+   const lowerBaseCurrency = baseCurrency.toLowerCase()
+
+   let currencyRates;
+
+   const cacheKey = `${lowerBaseCurrency}`
+
+   const cachedData: { data?: object } | null = getCachedData(cacheKey)
+
+   if (cachedData) {
+      currencyRates = cachedData
+   }
+
+   else {
+      try {
+         const formattedDate = moment.utc(new Date()).format("YYYY-MM-DD")
+
+         const url = `https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@${formattedDate}/v1/currencies/${lowerBaseCurrency}.json`;
+
+         const results = await axios.get(url)
+
+         currencyRates = results.data
+
+         if (currencyRates) {
+            cache.set(cacheKey, currencyRates)
+         }
+      }
+      catch (err) {
+         throw new Error(err)
+      }
+   }
+
+   return currencyRates
+}
+function getCachedData(key) {
+   const data = cache.get(key)
+   if (!data) {
+      return null
+   }
+   return data
+}
+
+
+export function convertAllKeysIntoCurrency<
+   T extends object,
+   K extends keyof any
+>(
+   data: T,
+   pickKeys: K[],
+   rate: number,
+   mode: "round" | "fixed" | "none" = "none"
+) {
+   const result: Partial<Record<string, number>> = {};
+
+   if (typeof data !== "object" || data === null) return result;
+
+   function helper(obj: any) {
+      for (const [key, value] of Object.entries(obj)) {
+         if (typeof value === "object" && value !== null) {
+            helper(value);
+         } else if (pickKeys.includes(key as K) && typeof value === "number") {
+            let res;
+            if (mode === "fixed") {
+               res = parseFloat((value * rate).toFixed(2));
+            } else if (mode === "round") {
+               res = Math.round(value * rate);
+            } else {
+               res = value * rate;
+            }
+            result[key] = res
+         }
+      }
+   }
+
+   helper(data);
+
+   return result;
+}
+
+export async function normalizeCurrencyPayload
+   <
+      T extends object,
+      K extends keyof any
+   >
+   (data: T, pickKeys: K[], hostCurrency: string, guestCurrency: string, mode: "round" | "fixed" | "none" = "none") {
+
+   const rates = await getApiCurrency("usd");
+
+   hostCurrency = hostCurrency.toLowerCase()
+
+   guestCurrency = guestCurrency.toLowerCase()
+
+   const exchangeRates = rates["usd"];
+
+   const usdTohostCurencyRate = exchangeRates[hostCurrency]
+
+   const usdToGuestCurrencyRate = exchangeRates[guestCurrency]
+
+   //host currency -----> guest currency
+   const rate = usdToGuestCurrencyRate / usdTohostCurencyRate
+
+   const guestRequestCurrencyPayload = convertAllKeysIntoCurrency(data, pickKeys, rate, mode)
+
+   return { guestRequestCurrencyPayload, rate }
+}
+
+export function normalizePrecision<
+   T extends Record<string, any>,
+>(
+   data: T,
+   mode: "round" | "fixed" | "none" = "none",
+   omitKeys?: string[],
+   currency?: string
+): T {
+   const result: any = {};
+
+   if (typeof data !== "object" || data === null) return data;
+
+   for (const [key, value] of Object.entries(data)) {
+      if (!omitKeys?.includes(key) && !mongoose.isValidObjectId(value) && typeof value === "object" && value !== null && !(value instanceof Date)) {
+         result[key] = normalizePrecision(value, mode, omitKeys, currency);
+      } else if (typeof value === "number") {
+         let res;
+         if (mode === "fixed") {
+            res = parseFloat((value).toFixed(2));
+         } else if (mode === "round") {
+            res = Math.round(value);
+            if (currency?.toUpperCase() == 'UGX' && value > 100) {
+               res = Math.round(value / 100) * 100;
+            }
+         } else {
+            res = value;
+         }
+         result[key] = res;
+      } else {
+         result[key] = value;
+      }
+   }
+
+   return result;
 }

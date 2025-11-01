@@ -1,7 +1,12 @@
 import express from 'express';
-import generalRoutes from './general/index';
+import hostRoutes from './host/index'
+import guestRoutes from './guest/index'
+
 import adminRoutes from './admin/index';
 import otherRoutes from './others/index';
+import { placeCurrencyIntoRequest } from '../middleware/currency/currency.middleware';
+// import { attachSessionOptions } from '../middleware/sessions/session.middleware';
+import createPages from '../middleware/pagination/pagination.middleware';
 
 const router = express.Router();
 
@@ -11,16 +16,24 @@ const router = express.Router();
 |--------------------------------------------------------------------------
 */
 
+//assign currency in to res locale object from client
+
+const registerOptions = [
+    placeCurrencyIntoRequest,
+    // attachSessionOptions,
+    createPages
+];
 // General user routes
-router.use('/guest', generalRoutes);
+router.use('/guest', registerOptions, guestRoutes);
 
 // host user routes
-router.use('/host', generalRoutes);
+router.use('/host', registerOptions, hostRoutes);
 
 // Admin routes
-router.use('/admin', adminRoutes);
+router.use('/admin', registerOptions, adminRoutes);
 
 // Miscellaneous routes
-router.use('/others', otherRoutes);
+router.use('/others', registerOptions, otherRoutes);
+
 
 export default router;

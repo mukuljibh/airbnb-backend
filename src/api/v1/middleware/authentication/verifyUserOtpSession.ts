@@ -4,36 +4,36 @@ import { ApiError } from '../../utils/error-handlers/ApiError';
 import {
    decodeJwtToken,
    PayloadType,
-} from '../../controllers/common/user/utils/common.user.utils';
+} from '../../controllers/common/auth/utils/auth.utils';
+import { COOKIE_KEYS } from '../../constant/cookie.key.constant';
 export async function verifyUserOtpSession(
    req: Request,
    res: Response,
    next: NextFunction,
 ) {
-   const otpsessionIdToken = req.cookies?.['otpsessionid'];
 
-   try {
-      if (!otpsessionIdToken) {
-         throw new ApiError(400, 'OTP session ID is missing.');
-      }
-      const decodedDataFromSession =
-         decodeJwtToken<PayloadType>(otpsessionIdToken);
-      if (!decodedDataFromSession.data?.userId) {
-         throw new ApiError(400, 'Invalid or expired OTP session.');
-      }
-      const { userId } = decodedDataFromSession.data;
-      const user = await User.findById(userId).select('session');
-
-      if (!user || !user.session) {
-         throw new ApiError(400, 'No active OTP session found.');
-      }
-
-      if (user.session.otpSessionId !== otpsessionIdToken) {
-         throw new ApiError(400, 'OTP session expired or mismatched.');
-      }
-
-      next();
-   } catch (err) {
-      next(err);
+   const otpToken = req.cookies?.[COOKIE_KEYS.OTP_SESSION_ID];
+   const { data } = decodeJwtToken<PayloadType>(otpToken)
+   if (!data) {
+      throw new ApiError(400, 'We could not find an active OTP session. Please request a new code.', { step: "login" });
    }
+   const { userId } = data;
+
+   const user = await User.findById(userId).select('session');
+
+   if (!user) {
+      throw new ApiError(404, 'We could not find an account associated with this OTP.', { step: 'login' })
+   }
+
+   const userSession = user?.session
+
+   if (!userSession) {
+      throw new ApiError(400, 'No active OTP session was found for this account. Please resend the code.', { step: "retry" });
+   }
+
+   if (userSession?.otpSessionId !== otpToken) {
+      throw new ApiError(400, 'Your OTP session has expired or does not match. Please try again.', { step: "login" });
+   }
+
+   return next()
 }

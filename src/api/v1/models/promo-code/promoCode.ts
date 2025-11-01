@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { getCurrencyWiseRate } from '../price/utils/price.utils';
 
 interface IPromoCode extends Document {
    _id: mongoose.Types.ObjectId;
@@ -10,13 +11,18 @@ interface IPromoCode extends Document {
    validUntil: Date;
    usedCount: number;
    minimumSpend: number;
+   maximumDiscount: number;
    eligibleUserTypes: ('newUser' | 'existingUser')[];
+   uptoPrice: number;
    maxPerUser: number;
    maxRedemptions: number;
    status: 'active' | 'inactive';
+   currency: string,
+
    incrementUsedCount(session: mongoose.mongo.ClientSession): Promise<void>;
    validatePromoCode(
       totalBasePrice: number,
+      currency: string
    ): Promise<{ isValid: boolean; message: string }>;
 }
 const promoCodeSchema = new mongoose.Schema<IPromoCode>(
@@ -24,6 +30,7 @@ const promoCodeSchema = new mongoose.Schema<IPromoCode>(
       promoCode: {
          type: String,
          required: true,
+         index: true,
          uppercase: true,
          unique: true,
          trim: true,
@@ -40,6 +47,9 @@ const promoCodeSchema = new mongoose.Schema<IPromoCode>(
       discountValue: {
          type: Number,
          required: true,
+      },
+      maximumDiscount: {
+         type: Number
       },
       maxPerUser: {
          type: Number,
@@ -71,6 +81,11 @@ const promoCodeSchema = new mongoose.Schema<IPromoCode>(
          type: Number,
          default: 10,
       },
+      currency: {
+         type: String,
+         default: "USD"
+      },
+
       status: {
          type: String,
          enum: ['active', 'inactive'],
@@ -90,11 +105,14 @@ promoCodeSchema.methods.incrementUsedCount = async function (
 
 promoCodeSchema.methods.validatePromoCode = async function (
    totalBasePrice: number,
+   currency: string
 ) {
-   if (totalBasePrice < this.minimumSpend) {
+   const { rate } = await getCurrencyWiseRate(currency)
+   const minimumSpend = parseFloat((this.minimumSpend * rate).toFixed(2))
+   if (totalBasePrice < minimumSpend) {
       return {
          isValid: false,
-         message: `The minimum spend required to apply this coupon is ${this.minimumSpend}.`,
+         message: `The minimum spend required to apply this coupon is ${currency} ${minimumSpend}.`,
       };
    }
    return {

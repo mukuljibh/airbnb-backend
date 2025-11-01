@@ -69,8 +69,8 @@ export const validateCheckpoint = [
       .trim()
       .notEmpty()
       .withMessage('propertyPlaceType cannot be empty')
-      .isIn(['room', 'entire-home'])
-      .withMessage('propertyPlaceType must be either  room | entire-home'),
+      .isIn(['any', 'room', 'entire-home'])
+      .withMessage('propertyPlaceType must be either any | room | entire-home'),
 
    body('propertyCategoryId')
       .if(body('stage').equals('1'))
@@ -184,15 +184,23 @@ export const validateCheckpoint = [
 
    body('propertyZipcode')
       .if(body('stage').equals('1'))
-      .exists()
-      .withMessage('Property ZIP code is required for stage 1')
+      .trim()
+      .custom((value) => {
+         if (value === '') return true;
+
+         if (typeof value !== 'string') throw new Error('ZIP code must be a string');
+         if (value.length > 10) throw new Error('ZIP code must be at most 10 characters');
+         return true;
+      }),
+
+   body('propertyBaseCurrency')
+      .optional()
+      .if(body('stage').equals('1'))
       .trim()
       .notEmpty()
-      .withMessage('Property ZIP code cannot be empty')
+      .withMessage('propertyBaseCurrency cannot be empty')
       .isString()
-      .withMessage('Property ZIP code must be a string')
-      .isLength({ min: 2, max: 10 })
-      .withMessage('ZIP code must be either at least 2 digits'),
+      .withMessage('Property propertyBaseCurrency must be a string'),
 
    body('propertyCoordinates')
       .if(body('stage').equals('1'))
@@ -263,35 +271,32 @@ export const validateCheckpoint = [
       .withMessage('Price per night must be a positive number'),
 
    body('cleaningFees')
+      .optional()
       .if(body('stage').equals('3'))
-      .exists()
-      .withMessage('Cleaning fees is required for stage 3')
       .trim()
-      .notEmpty()
-      .withMessage('Cleaning fees cannot be empty')
       .isFloat({ min: 0 })
-      .withMessage('Cleaning fees must be a positive number'),
+      .withMessage('Cleaning fees must be a 0 or positive number'),
 
    body('weeklyRateDiscount')
+      .optional()
       .if(body('stage').equals('3'))
       .trim()
-      .optional()
       .isFloat({ min: 0, max: 100 })
       .withMessage('Weekly rate discount must be a number between 0 and 100'),
 
    body('serviceFees')
+      .optional()
       .if(body('stage').equals('3'))
       .trim()
-      .optional()
       .isFloat({ min: 0 })
-      .withMessage('serviceFees must be a number more then 0'),
+      .withMessage('serviceFees fees must be a 0 or positive number'),
 
    body('monthlyRateDiscount')
+      .optional()
       .if(body('stage').equals('3'))
       .trim()
-      .optional()
-      .isFloat({ min: 0, max: 100 })
-      .withMessage('Monthly rate discount must be a number between 0 and 100'),
+      .isFloat({ min: 1, max: 100 })
+      .withMessage('Monthly rate discount must be a number between 1 and 100'),
 
    // Checkpoint 4 validation
    body('housingRules')
@@ -303,25 +308,15 @@ export const validateCheckpoint = [
       .trim(),
 
    body('cancellationPolicy')
+      .optional()
       .if(body('stage').equals('4'))
       .exists()
       .withMessage('cancellationPolicy is required for stage 4')
       .isObject()
       .withMessage(
-         'cancellationPolicy must be an object with type and description',
+         'cancellationPolicy must be an object with description',
       )
       .custom((policy) => {
-         if (!policy.type || !policy.description) {
-            throw new Error(
-               'Both type and description are required in cancellationPolicy',
-            );
-         }
-         if (
-            typeof policy.type !== 'string' ||
-            typeof policy.description !== 'string'
-         ) {
-            throw new Error('type and description must be strings');
-         }
          if (
             !['flexible', 'moderate', 'strict', 'non-refundable'].includes(
                policy.type,
@@ -464,6 +459,7 @@ export const validateCheckpoint = [
             'propertyCategoryId',
             'propertyAddress',
             'propertyCoordinates',
+            "propertyBaseCurrency",
             'experienceTags',
          ],
          2: ['stage', 'bedRooms', 'bathRooms', 'beds', 'maxGuest', 'amenities'],
@@ -476,6 +472,8 @@ export const validateCheckpoint = [
             'monthlyRateDiscount',
             'capacity',
             'firstThreeBookingsDiscount',
+            'currency'
+
          ],
          4: [
             'stage',
@@ -492,8 +490,10 @@ export const validateCheckpoint = [
             'nearByAttractionNote',
             'isHaveSelfCheckin',
             'isHaveInstantBooking',
+            'hasInstantBooking',
+            'hasSelfBooking'
          ],
-         6: ['stage', 'documents'],
+         6: ['stage', 'documents', 'lastStatus', 'reason'],
       };
 
       const extraFields = Object.keys(req.body).filter(

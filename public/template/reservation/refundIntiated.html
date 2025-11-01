@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Your refund should be arriving soon - Airbnb</title>
+</head>
+<body style="margin:0; padding:0; background-color:#f7f7f7; font-family:Arial, sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f7f7f7; padding:20px 0;">
+  <tr>
+    <td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="background-color:white; border-radius:12px; max-width:600px;">
+        
+        <!-- Header -->
+        <tr>
+          <td style="padding:24px; font-size:18px; font-weight:bold; color:#00858e;">
+            AIRBNB
+          </td>
+        </tr>
+
+        <!-- Main Heading -->
+        <tr>
+          <td style="padding:0 24px 16px; font-size:28px; font-weight:700; color:#3c3c3c;">
+            Your refund should be arriving soon
+          </td>
+        </tr>
+
+        <!-- Property Card -->
+        <tr>
+          <td style="padding:0 24px 24px;">
+            <table cellpadding="0" cellspacing="0" width="100%" style="border:1px solid #e9ecef; border-radius:12px;">
+              <tr>
+                <td width="120" style="padding:12px;">
+                  <img src="{{thumbnail}}" alt="{{propertyName}}" width="120" height="120" style="display:block; border-radius:8px; object-fit:cover;">
+                </td>
+                
+                <td style="padding:12px; font-size:14px; color:#717171;">
+                  <div style="font-size:16px; font-weight:600; color:#222222; margin-bottom:4px;">{{propertyName}}</div>
+                  <div style="margin-bottom:4px;">{{propertyPlaceType}} hosted by {{hostName}}</div>
+                  <div>{{formattedDateRange}}</div>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- Refund Info -->
+        <tr>
+          <td style="padding:0 24px 16px; font-size:16px; color:#3c3c3c; line-height:1.5;">
+            We sent your refund for <strong style="color:#222222;">{{refundAmount}}</strong> to your original payment method on {{refundAppliedDate}} for reservation 
+            <code style="background-color:#f8f9fa; padding:2px 4px; border-radius:4px;">{{reservationCode}}</code> at {{propertyName}}.
+          </td>
+        </tr>
+
+        <!-- Cancellation Policy -->
+        <tr>
+          <td style="padding:0 24px 16px; font-size:14px; color:#555;">
+            <strong>Cancellation policy:</strong> <strong style="color:#222222;"></strong> - Cancellations are non-refundable if made within 48 hours of the scheduled check-in date, or if the check-in date is within 48 hours of the cancellation request — whichever occurs first.
+          </td>
+        </tr>
+
+        <!-- Print Receipt -->
+        <tr>
+          <td style="padding:0 24px 20px; font-size:14px;">
+            <a href="https://mainwebsite-dev.netlify.app/booking" style="color:#00858e; font-weight:bold; text-decoration:none;">🖨 Print this receipt</a>
+          </td>
+        </tr>
+
+        <!-- Timeline Info -->
+        <tr>
+          <td style="padding:0 24px 24px; font-size:16px; color:#3c3c3c; line-height:1.6;">
+            This means it's on its way, and it usually takes up to 15 business days to arrive in your account. 
+            <a href="https://mainwebsite-dev.netlify.app/policies?type=refundPolicy" style="color:#0070f3; font-weight:600; text-decoration:underline;">Learn More</a>
+          </td>
+        </tr>
+
+        <!-- Closing -->
+        <tr>
+          <td style="padding:0 24px 24px; font-size:16px; color:#3c3c3c;">
+            Thanks,<br>The Airbnb team
+          </td>
+        </tr>
+
+        <!-- CTA Button -->
+        <tr>
+          <td style="padding:0 24px 32px;" align="center">
+            <a href="https://mainwebsite-dev.netlify.app/booking" style="background-color:#00858e; color:white; padding:14px 24px; border-radius:8px; text-decoration:none; font-weight:600; font-size:16px; display:inline-block;">
+              Track refund
+            </a>
+          </td>
+        </tr>
+
+        <!-- Footer -->
+        <tr>
+          <td style="padding:24px; border-top:1px solid #e0e0e0; font-size:12px; color:#717171;">
+            <div style="font-weight:bold; color:#00858e; font-size:16px;">AIRBNB</div>
+            Airbnb Ireland UC<br>8 Hanover Quay<br>Dublin 2, Ireland
+            <div style="margin-top:12px;">
+              <a href="#" style="text-decoration:none; color:#666; font-size:12px; background:#ddd; padding:4px 8px; border-radius:12px;">f</a>
+              <a href="#" style="text-decoration:none; color:#666; font-size:12px; background:#ddd; padding:4px 8px; border-radius:12px;">@</a>
+              <a href="#" style="text-decoration:none; color:#666; font-size:12px; background:#ddd; padding:4px 8px; border-radius:12px;">in</a>
+            </div>
+          </td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+</body>
+</html>

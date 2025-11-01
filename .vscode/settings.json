@@ -1,0 +1,15 @@
+{
+    "files.autoSave": "off",
+    "editor.formatOnSave": true,
+
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[typescript]": {
+        "editor.defaultFormatter": "vscode.typescript-language-features"
+    },
+   "typescript.tsdk": "node_modules\\typescript\\lib",
+   "typescript.tsserver.maxTsServerMemory": 4096,
+   "typescript.disableAutomaticTypeAcquisition": true
+}

@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8" />
+   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+   <title>Property Listing Rejected - Airbnb</title>
+   <style>
+      body {
+         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+         background-color: #f7f7f7;
+         margin: 0;
+         padding: 20px;
+      }
+      .email-container {
+         max-width: 600px;
+         margin: auto;
+         background-color: #ffffff;
+         border-radius: 8px;
+         overflow: hidden;
+         box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      }
+      .header {
+         text-align: center;
+         color: #008489;
+         font-size: 20px;
+         font-weight: bold;
+         padding: 20px;
+      }
+      .content {
+         padding: 30px;
+         color: #333333;
+         font-size: 16px;
+         line-height: 1.6;
+      }
+      .highlight {
+         font-weight: bold;
+      }
+      .details {
+         background-color: #f7f7f7;
+         padding: 15px;
+         border-radius: 6px;
+         margin-top: 20px;
+      }
+      .details-row {
+         display: flex;
+         justify-content: space-between;
+         padding: 8px 0;
+         font-size: 15px;
+      }
+      .button {
+         display: inline-block;
+         margin: 25px 0;
+         background-color: #008489;
+         color: #ffffff !important;
+         padding: 12px 24px;
+         border-radius: 6px;
+         text-decoration: none;
+         font-weight: bold;
+         text-align: center;
+      }
+      .footer {
+         padding: 20px;
+         font-size: 14px;
+         text-align: center;
+         color: #999999;
+      }
+   </style>
+</head>
+<body>
+   <div class="email-container">
+      <!-- Airbnb Header -->
+      <div class="header">AIRBNB</div>
+
+      <!-- Email Body -->
+      <div class="content">
+         <h2>Your Property Listing Was Rejected</h2>
+         <p>Hello {{name}},</p>
+
+         <p>
+            We’ve reviewed your property submission for 
+            <span class="highlight">{{propertyName}}</span>, and unfortunately, 
+            it has been <span class="highlight">rejected</span>.
+         </p>
+
+         <h3>Rejection Details</h3>
+         <div class="details">
+            <div class="details-row">
+               <span>Date</span>
+               <span>{{date}}</span>
+            </div>
+            <div class="details-row">
+               <span>Reason</span>
+               <span>{{reason}}</span>
+            </div>
+         </div>
+
+         <p>
+            If you’d like to make corrections and resubmit your property, please update the listing and try again.
+         </p>
+
+         <a href="https://userpanel-dev.netlify.app/" class="button">Update & Resubmit Property</a>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+         &copy; {{year}} Airbnb, Inc. All rights reserved.<br>
+         Airbnb Ireland UC, 8 Hanover Quay, Dublin 2, Ireland
+      </div>
+   </div>
+</body>
+</html>

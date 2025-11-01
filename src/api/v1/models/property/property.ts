@@ -1,8 +1,34 @@
 import mongoose, { Schema } from 'mongoose';
 import { IProperty } from './types/property.model.types';
 import { getSinglePropertyAvgReviews } from '../../utils/aggregation-pipelines/agregation.utils';
-import { checkAvailableDate } from '../../controllers/general/properties/utils/general.property.utils';
+import moment from 'moment';
+import { Reservation } from '../reservation/reservation';
+import { ApiError } from '../../utils/error-handlers/ApiError';
+import { propertyGallerySchema } from './gallery';
+import * as propertyAttribute from "./propertyAttributes/propertyAttributes"
 
+
+const statusMetaSchema = new Schema({
+   previousStatus: {
+      type: String,
+      enum: Object.values(propertyAttribute.PROPERTY_STATUS),
+      required: true
+   },
+   newStatus: {
+      type: String,
+      enum: Object.values(propertyAttribute.PROPERTY_STATUS),
+      required: true
+   },
+   changedBy: {
+      userId: mongoose.Schema.ObjectId,
+      role: {
+         type: String,
+         enum: ['admin', 'user', 'system']
+      }
+   },
+   timestamp: { type: Date, default: Date.now },
+   reason: String
+})
 const propertySchema = new mongoose.Schema<IProperty>(
    {
       hostId: {
@@ -13,7 +39,10 @@ const propertySchema = new mongoose.Schema<IProperty>(
          type: mongoose.Schema.Types.ObjectId,
          ref: 'Category',
       },
-      title: String,
+      title: {
+         type: String,
+         trim: true,
+      },
       avgRating: { type: Number, default: 0 },
       propertyPlaceType: {
          type: String,
@@ -43,15 +72,11 @@ const propertySchema = new mongoose.Schema<IProperty>(
             'townhouse',
          ],
       },
-      thumbnail: String,
-      gallery: [
-         {
-            _id: false,
-            url: String,
-            caption: String,
-            isPrimary: Boolean,
-         },
-      ],
+      thumbnail: {
+         type: String,
+         trim: true,
+      },
+      gallery: [propertyGallerySchema],
 
       capacity: {
          maxGuest: {
@@ -81,6 +106,17 @@ const propertySchema = new mongoose.Schema<IProperty>(
          enum: ['draft', 'published'],
          default: 'draft',
       },
+      statusMeta: [statusMetaSchema],
+      inactivatedBy: {
+         userId: mongoose.Types.ObjectId,
+         role: {
+            type: String,
+            enum: ["admin", "host"]
+         },
+         reason: String,
+         timestamp: Date
+
+      },
       availabilityWindow: Number,
       details: {
          description: { type: String },
@@ -108,8 +144,8 @@ const propertySchema = new mongoose.Schema<IProperty>(
       },
       status: {
          type: String,
-         enum: ['active', 'inactive'],
-         default: 'inactive',
+         enum: Object.values(propertyAttribute.PROPERTY_STATUS),
+         default: propertyAttribute.PROPERTY_STATUS.INACTIVE,
       },
       isBookable: {
          type: Boolean,
@@ -118,67 +154,27 @@ const propertySchema = new mongoose.Schema<IProperty>(
       amenities: {
          type: [Schema.Types.ObjectId],
          ref: 'Amenities',
-         default: [],
       },
+      hasPendingSensitiveUpdates: {
+         type: Boolean,
+         default: null
+      },
+      // totalLikes: { type: Number, default: 0 },
 
-      totalLikes: { type: Number, default: 0 },
-      location: {
-         regionId: String,
-         address: String,
-         city: String,
-         zipCode: String,
-         country: String,
-         state: String,
-         landmark: String,
-         coordinates: {
-            latitude: Number,
-            longitude: Number,
-         },
-      },
-      verification: {
-         status: {
-            type: String,
-            enum: [
-               'open',
-               'pending',
-               'verified',
-               'rejected',
-               'required_action',
-            ],
-            default: 'open',
-         },
-         reason: { type: String },
-         documents: [
-            {
-               _id: false,
-               documentType: {
-                  type: String,
-                  required: true,
-                  enum: [
-                     'government-issued ID',
-                     'rental agreement',
-                     'land registry document',
-                     'electricity bill',
-                     'water bill',
-                     'property tax receipt',
-                     'property deed',
-                     'gas bill',
-                     'No Objection Certificate',
-                  ],
-               },
-               documentUrl: {
-                  type: String,
-                  required: true,
-               },
-            },
-         ],
-      },
+      location: propertyAttribute.propertyLocationObject,
+
+      verification: propertyAttribute.propertyVerificationObject,
+
+      deletionRequestedAt: Date,
+
+      deletedAt: Date
    },
    { timestamps: true },
 );
 
+
+
 propertySchema.index({
-   name: 'text',
    title: 'text',
    'location.city': 'text',
    'location.address': 'text',
@@ -188,10 +184,27 @@ propertySchema.index({
 
 propertySchema.pre('save', async function (next) {
    const gallery = this.gallery;
-   const thumbnail = gallery?.filter((x) => x.isPrimary == true)[0];
-   this.thumbnail = thumbnail?.url ? thumbnail.url : gallery[0]?.url;
+   const thumbnail = gallery?.find(x => x.isPrimary) || gallery[0];
+   this.thumbnail = thumbnail?.url;
+
+   const coordinates = this.location?.coordinates;
+
+   // const testProperty = await Property.findById(this?._id).select('location')
+
+   // const location = testProperty?.location?.coordinates
+
+   if (coordinates) {
+      this.location.locationGeo = {
+         type: 'Point',
+         coordinates: [coordinates.longitude || 0, coordinates.latitude || 0],
+
+      };
+   }
+
    next();
 });
+
+
 propertySchema.methods.updateAvgRating = async function () {
    const accResult = await getSinglePropertyAvgReviews(this._id);
    if (accResult.length > 0) {
@@ -200,12 +213,135 @@ propertySchema.methods.updateAvgRating = async function () {
    }
 };
 
+propertySchema.methods.markPropertyAsDeleted = async function ({ session }) {
+
+   const propertyInstance = this as IProperty
+
+   // propertyInstance.isSoftDeleted = true
+   propertyInstance.isBookable = false
+   propertyInstance.status = 'inactive'
+
+   await propertyInstance.save({ session })
+
+};
+
+
+propertySchema.methods.modifyStatus = async function (
+   status: 'active' | 'inactive',
+   currentUserRole: 'host' | 'admin',
+   userId: mongoose.Types.ObjectId,
+   reason: string,
+) {
+   try {
+
+      let response = {
+         hasOperationSuccess: false,
+         status,
+      }
+
+      const todayDate = moment.utc(new Date()).startOf('date').toDate();
+
+      const property = this as IProperty
+
+      const personWhoInactiveProperty = property.inactivatedBy?.role
+
+      if (personWhoInactiveProperty === "admin" && currentUserRole !== "admin") {
+
+         throw new ApiError(403, "This property has been deactivated by the admin. Please contact support for more information.");
+      }
+
+      if (status == 'inactive') {
+
+         const anyReservation = await Reservation.findOne({
+            propertyId: property._id,
+            checkOutDate: { $gte: todayDate },
+            status: { $ne: 'cancelled' },
+         })
+            .sort({ checkInDate: -1 })
+            .select('_id checkInDate checkOutDate')
+
+         // property.inactivatedBy = {
+         //    userId,
+         //    role: currentUserRole,
+         //    timestamp: todayDate,
+         //    reason
+         // }
+
+         property.isBookable = false;
+
+         if (!anyReservation) {
+            property.status = "inactive";
+            response.hasOperationSuccess = true
+         }
+
+      }
+
+      if (status == "active") {
+
+         property.inactivatedBy = undefined;
+         property.status = status;
+         response.hasOperationSuccess = true
+         // response.message = `Property status updated to ${status} successfully.`
+      }
+
+
+      await property.save();
+
+      return response
+
+   } catch (error) {
+      console.error('Error modifying status:', error);
+      throw error;
+   }
+};
+
 propertySchema.methods.checkAvailableDate = async function (
    checkIn: Date,
    checkOut: Date,
 ) {
-   return await checkAvailableDate(checkIn, checkOut, this._id);
+   const todayDate = moment.utc().startOf('day').toDate();
+
+   // Parse and normalize check-in/check-out dates to UTC 00:00
+   const startDate = moment.utc(checkIn).startOf('day');
+   const endDate = moment.utc(checkOut).startOf('day');
+
+   // Calculate available end date (today + property availabilityWindow months)
+   const availableEnd = moment
+      .utc(todayDate)
+      .startOf('day')
+      .add(this.availabilityWindow, 'months');
+
+   //maintain the rolling window boundary
+   if (startDate.isBefore(todayDate) || endDate.isAfter(availableEnd)) {
+      return false;
+   }
+
+   // Check if the requested dates fit within any available range
+   const reservation = await Reservation.aggregate([
+      {
+         $match: {
+            propertyId: this._id,
+            status: { $ne: "cancelled" },
+            $expr: {
+               $and: [
+                  { $lt: [{ $toDate: checkIn }, '$checkOutDate'] },
+                  { $gt: [{ $toDate: checkOut }, '$checkInDate'] },
+               ],
+            },
+         },
+      },
+   ]);
+   return reservation.length === 0;
 };
+
+propertySchema.index({ price: 1 })
+propertySchema.index({ propertyRules: 1 })
+propertySchema.index({ hostId: 1 })
+propertySchema.index({ amenities: 1 })
+propertySchema.index({ category: 1 });
+
+propertySchema.index({ "location.locationGeo": "2dsphere" });
+
 
 const Property = mongoose.model('Property', propertySchema);
 

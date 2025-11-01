@@ -17,24 +17,26 @@ const notificationSchema = new mongoose.Schema(
          type: String,
          required: true,
       },
-
-      type: {
+      visibleToRoles: {
+         type: [String],
+         enum: ['guest', 'host', 'admin'],
+      },
+      // category: {
+      //    type: String,
+      //    enum: ['reservation', 'system', 'promo', 'user_query'],
+      // },
+      // relatedDocId: {
+      //    type: mongoose.Types.ObjectId,
+      //    refPath: 'typeRef',
+      // },
+      // relatedModel: {
+      //    type: String,
+      //    enum: ['property', 'promoCode', 'reservation', 'user'],
+      // },
+      redirectKey: {
          type: String,
-         enum: ['reservation', 'system', 'payment', 'promo', 'review'],
-         required: true,
+         default: null,
       },
-
-      genericRef: {
-         type: mongoose.Types.ObjectId,
-         required: true,
-         refPath: 'typeRef',
-      },
-      typeRef: {
-         type: String,
-         required: true,
-         enum: ['property', 'promoCode', 'reservation', 'user'],
-      },
-
       isRead: {
          type: Boolean,
          default: false,

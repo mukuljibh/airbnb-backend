@@ -1,5 +1,5 @@
 import { body, validationResult } from 'express-validator';
-import { emailRegix } from '../../../utils/regex/regex.constant';
+import { emailRegix } from '../../../constant/regex.constant';
 import parsePhoneNumber from 'libphonenumber-js';
 import { pick } from 'lodash';
 
@@ -84,7 +84,7 @@ export const validateAccountUpdateProfile = [
       .trim()
       .notEmpty()
       .withMessage('First name is required')
-      .isLength({ min: 2 })
+      .isLength({ min: 2, max: 25 })
       .withMessage('First name must be at least 2 characters'),
 
    body('lastName')
@@ -92,7 +92,7 @@ export const validateAccountUpdateProfile = [
       .trim()
       .notEmpty()
       .withMessage('Last name is required')
-      .isLength({ min: 2 })
+      .isLength({ min: 2, max: 25 })
       .withMessage('Last name must be at least 2 characters'),
 
    body('flatNo')

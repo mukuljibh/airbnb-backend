@@ -1,5 +1,8 @@
 import mongoose from 'mongoose';
 
+// Not in use currently
+
+
 const refundSchema = new mongoose.Schema({
    transactionId: {
       type: mongoose.Schema.Types.ObjectId,

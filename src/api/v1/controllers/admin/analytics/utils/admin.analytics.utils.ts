@@ -3,29 +3,19 @@
 import { User } from '../../../../models/user/user';
 import { Reservation } from '../../../../models/reservation/reservation';
 import { Property } from '../../../../models/property/property';
-
-export function getDateFormat(groupBy: string): string {
-   switch (groupBy) {
-      case 'week':
-         return '%G-W%V';
-      case 'year':
-         return '%Y';
-      case 'month':
-      default:
-         return '%Y-%m';
-   }
-}
+import { Transaction } from '../../../../models/reservation/transaction';
+import { USER_STATUS } from '../../../../models/user/enums/user.enum';
 
 export async function getUserStats(
    dateFormat: string,
-   { startOfYear, endOfYear }: { startOfYear: Date; endOfYear: Date },
+   { startDate, endDate }: { startDate: Date; endDate: Date },
 ) {
    return User.aggregate([
       {
          $match: {
             hasBasicDetails: true,
             role: { $nin: ['admin'] },
-            createdAt: { $gte: startOfYear, $lte: endOfYear },
+            createdAt: { $gte: startDate, $lte: endDate },
          },
       },
       {
@@ -78,157 +68,94 @@ export async function getUserStats(
    ]);
 }
 
-export async function getRevenueStats(
-   dateFormat: string,
-   { startOfYear, endOfYear }: { startOfYear: Date; endOfYear: Date },
-) {
-   const result = await Reservation.aggregate([
+
+
+interface IUserStats {
+   host: { active: number, suspended: number, deleted: number, total: number },
+   guest: { active: number, suspended: number, deleted: number, total: number }
+}
+
+
+export async function getTotalUsers() {
+
+   const [rawUserStats] = await User.aggregate<IUserStats>([
       {
          $match: {
-            status: 'complete',
-            createdAt: { $gte: startOfYear, $lte: endOfYear },
-         },
+            status: { $ne: USER_STATUS.PENDING },
+            role: { $ne: "admin" },
+         }
       },
       {
          $addFields: {
-            unitTime: {
-               $dateToString: { format: dateFormat, date: '$createdAt' },
-            },
-         },
-      },
-      {
-         $lookup: {
-            from: 'transactions',
-            localField: '_id',
-            foreignField: 'reservationId',
-            as: 'transaction',
-         },
-      },
-      {
-         $unwind: {
-            path: '$transaction',
-            preserveNullAndEmptyArrays: false,
-         },
-      },
-      {
-         $facet: {
-            hostRevenue: [
-               {
-                  $group: {
-                     _id: {
-                        unitTime: '$unitTime',
-                     },
-                     totalAmount: { $sum: '$transaction.paymentAmount' },
-                  },
-               },
-
-               {
-                  $project: {
-                     x: '$_id.unitTime',
-                     y: '$totalAmount',
-                     _id: 0,
-                  },
-               },
-               { $sort: { x: 1 } },
-            ],
-            guestRevenue: [
-               {
-                  $group: {
-                     _id: {
-                        unitTime: '$unitTime',
-                     },
-                     totalAmount: { $sum: '$transaction.paymentAmount' },
-                  },
-               },
-
-               {
-                  $project: {
-                     x: '$_id.unitTime',
-                     userId: '$_id.userId',
-                     y: '$totalAmount',
-                     _id: 0,
-                  },
-               },
-               { $sort: { x: 1 } },
-            ],
-         },
-      },
-   ]);
-   return result[0];
-}
-
-export async function getTotalProperties() {
-   const result = await Property.aggregate([
-      {
-         $match: {
-            visibility: 'published',
-         },
+            userType: {
+               $cond: [{ $in: ["host", "$role"] }, "host", "guest"]
+            }
+         }
       },
       {
          $group: {
-            _id: null,
-            totalProperties: { $sum: 1 },
-         },
+            _id: { userType: "$userType", status: "$status" },
+            count: { $sum: 1 }
+         }
+      },
+      {
+         $group: {
+            _id: "$_id.userType",
+            statuses: { $push: { k: "$_id.status", v: "$count" } },
+            total: { $sum: "$count" }
+         }
       },
       {
          $project: {
             _id: 0,
-            totalProperties: 1,
-         },
-      },
-   ]);
-   return result[0]?.totalProperties || 0;
-}
-
-export async function getTotalUsers() {
-   const result = await User.aggregate([
-      {
-         $match: {
-            hasBasicDetails: true,
-            role: { $nin: ['admin'] },
-         },
+            k: "$_id",
+            v: {
+               $mergeObjects: [
+                  { active: 0, suspended: 0, deleted: 0 },
+                  { $arrayToObject: "$statuses" },
+                  { total: "$total" }
+               ]
+            }
+         }
       },
       {
          $group: {
             _id: null,
-            usersCount: { $sum: 1 },
-         },
+            data: { $push: { k: "$k", v: "$v" } }
+         }
       },
       {
-         $project: {
-            _id: 0,
-            usersCount: 1,
-         },
-      },
+         $replaceRoot: {
+            newRoot: { $arrayToObject: "$data" }
+         }
+      }
    ]);
-   return result[0]?.usersCount || 0;
-}
 
-export async function getTotalReservations() {
-   const result = await Reservation.aggregate([
-      {
-         $match: {
-            status: { $ne: 'open' },
-         },
-      },
-      {
-         $group: {
-            _id: null,
-            totalReservations: { $sum: 1 },
-         },
-      },
-      {
-         $project: {
-            _id: 0,
-            totalReservations: 1,
-         },
-      },
-   ]);
-   return result[0]?.totalReservations || 0;
+
+   if (!rawUserStats) {
+      return { hostUsers: 0, guestUsers: 0, totalUser: 0 };
+   }
+
+   const hostUser = rawUserStats.host
+   const guestUser = rawUserStats.guest
+
+   const result = {
+      activeGuestUsers: guestUser.active,
+      activeHostUsers: hostUser.active,
+      deletedUsers: guestUser.deleted + hostUser.deleted,
+      suspendedUsers: guestUser.suspended + hostUser.suspended,
+      totalUsers: guestUser.total + hostUser.total,
+      rawUserStats
+   }
+
+   return result
 }
 
 export async function getTop5CountryWithHigestBookings() {
    const result = await Reservation.aggregate([
+      {
+         $match: { status: { $ne: 'open' } },
+      },
       {
          $group: {
             _id: '$propertyId',
@@ -277,4 +204,114 @@ export async function getTop5CountryWithHigestBookings() {
       },
    ]);
    return result;
+}
+
+export async function getLatestTransactionsList(limit: number) {
+
+   const result = await Transaction.aggregate([
+      {
+         $match: { paymentStatus: { $ne: 'open' } },
+      },
+      {
+         $lookup: {
+            from: 'billings',
+            localField: 'billingId',
+            foreignField: '_id',
+            as: 'billing',
+         },
+      },
+      {
+         $project: {
+            _id: 0,
+            reservationId: 1,
+            transactionCode: 1,
+            paymentStatus: 1,
+            paymentAmount: 1,
+            type: 1,
+            currency: { $arrayElemAt: ['$billing.currency', 0] },
+            createdAt: 1,
+         },
+      },
+      { $sort: { createdAt: -1 } },
+      { $limit: limit },
+   ]);
+   return result;
+}
+
+
+
+export async function getNewUnverifeidListings(limit: number) {
+   const result = await Property.find({ visibility: "draft", "verification.status": { $nin: ["verified", "open"] } })
+      .sort({ updatedAt: -1 })
+      .populate({
+         path: 'hostId',
+         select: 'firstName lastName email phone',
+      })
+      .limit(limit)
+      .select('title hostId thumbnail location')
+      .lean();
+
+   return result;
+}
+
+export async function getPropertyStatsByPlaceType({ startDate, endDate }) {
+   const result = await Reservation.aggregate([
+      {
+         $match: {
+            status: { ne: 'open' },
+            createdAt: { $gte: startDate, $lte: endDate },
+         },
+      },
+      {
+         $lookup: {
+            from: 'properties',
+            localField: 'propertyId',
+            foreignField: '_id',
+            pipeline: [
+               {
+                  $project: {
+                     propertyPlaceType: 1,
+                  },
+               },
+            ],
+            as: 'property',
+         },
+      },
+      {
+         $unwind: {
+            path: '$property',
+            preserveNullAndEmptyArrays: false,
+         },
+      },
+      {
+         $group: {
+            _id: '$property.propertyPlaceType',
+            count: { $sum: 1 },
+         },
+      },
+      {
+         $project: {
+            _id: 0,
+            k: '$_id',
+            v: '$count',
+         },
+      },
+      {
+         $group: {
+            _id: null,
+            data: { $push: { k: '$k', v: '$v' } },
+         },
+      },
+      {
+         $project: {
+            _id: 0,
+            result: { $arrayToObject: '$data' },
+         },
+      },
+      {
+         $replaceRoot: { newRoot: '$result' },
+      },
+   ]);
+
+   return result[0];
 }

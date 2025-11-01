@@ -1,24 +1,32 @@
 import mongoose, { model } from 'mongoose';
 import { IPricing } from './types/price.model.type';
+import { zeroDecimalCurrencies } from '../../constant/currency.constant';
 import {
    isWeekend,
    calculateNights,
    calculateServiceFees,
    calculatePromoDiscount,
+   normalizePrecision,
+   normalizeCurrencyPayload,
 } from './utils/price.utils';
+import moment from 'moment';
+
 
 const PricingSchema = new mongoose.Schema<IPricing>({
+   propertyId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Property',
+   },
    basePrice: {
       amount: {
          type: Number,
          required: true,
-         default: 0,
       },
       currency: {
          type: String,
          required: true,
-         enum: ['INR', 'USD', 'GBP', 'EUR'],
-         default: 'INR',
+         default: 'usd',
+         lowerCase: true,
       },
    },
    capacityFeesRules: {
@@ -69,6 +77,25 @@ const PricingSchema = new mongoose.Schema<IPricing>({
          },
       },
    ],
+
+   dailyRates: [
+      {
+         price: {
+            type: Number,
+            required: true,
+            min: 0,
+         },
+         startDate: {
+            type: Date,
+            required: true,
+         },
+         endDate: {
+            type: Date,
+            required: true,
+         },
+      },
+   ],
+
    specialDates: [
       {
          date: Date,
@@ -78,23 +105,23 @@ const PricingSchema = new mongoose.Schema<IPricing>({
    ],
    lengthDiscounts: [
       {
+         _id: false,
          minNights: Number,
          discount: Number, // Percentage discount
+
       },
    ],
    // Additional fees
    additionalFees: {
       cleaning: {
          type: Number,
-         default: 0,
       },
       service: {
          type: Number,
-         default: 5,
       },
       tax: {
          type: Number,
-         default: 18,
+         // default: 18,
       }, // Percentage
    },
    // Weekend pricing
@@ -104,123 +131,9 @@ const PricingSchema = new mongoose.Schema<IPricing>({
    },
 });
 
-PricingSchema.methods.calculateBasePrice = function (
-   checkIn: Date,
-   checkOut: Date,
-) {
-   let totalBase = 0;
-   const currentDate = new Date(checkIn);
-   while (currentDate < checkOut) {
-      let dailyRate = this.basePrice.amount;
-      // Apply weekend multiplier
-      if (isWeekend(currentDate)) {
-         dailyRate *= this?.weekendMultiplier;
-      }
-      // Checking here for seasonal rates
-      this?.seasonalRates.forEach((season) => {
-         if (currentDate >= season.startDate && currentDate <= season.endDate) {
-            console.log(season);
-            dailyRate *= season.multiplier;
-         }
-      });
-      //added 1.2x or more as per entry each special day
-      if (this.specialDates) {
-         this.specialDates.forEach((special) => {
-            if (currentDate.toDateString() === special.date.toDateString()) {
-               console.log('special date');
-
-               dailyRate *= special.multiplier;
-            }
-         });
-      }
-      totalBase += dailyRate;
-      currentDate.setDate(currentDate.getDate() + 1);
-   }
-   return totalBase;
-};
-
-PricingSchema.methods.calculateDiscount = function (
-   basePrice: number,
-   numberOfNights: number,
-): { totalDiscount: number; discountBreakdown: Record<string, number> } {
-   let totalDiscount = 0;
-   const discountBreakdown: Record<string, number> = {};
-
-   // Length of stay discount
-   // give best discount
-   const applicableLengthDiscount = this.lengthDiscounts
-      .filter((discount) => numberOfNights >= discount.minNights)
-      .sort((a, b) => b.discount - a.discount)[0];
-
-   if (applicableLengthDiscount) {
-      const lengthDiscountAmount = Number(
-         ((basePrice * applicableLengthDiscount.discount) / 100).toFixed(2),
-      );
-      totalDiscount += lengthDiscountAmount;
-      if (lengthDiscountAmount > 0)
-         discountBreakdown.lengthDiscount = lengthDiscountAmount;
-   }
-
-   return {
-      totalDiscount: Number(totalDiscount.toFixed(2)),
-      discountBreakdown,
-   };
-};
-
-PricingSchema.methods.calculateTotalPrice = async function (
-   checkIn: Date,
-   checkOut: Date,
-   childCount: number,
-   adultcount: number,
-   userId?: string,
-   promoCode?: string,
-) {
-   const numberOfNights = calculateNights(checkIn, checkOut);
-   const totalbasePrice = this.calculateBasePrice(checkIn, checkOut);
-   let discounts = this.calculateDiscount(totalbasePrice, numberOfNights);
-   if (promoCode && userId) {
-      discounts = await calculatePromoDiscount(
-         userId,
-         totalbasePrice,
-         discounts,
-         promoCode,
-      );
-   }
-   const priceAfterDiscounts = totalbasePrice - discounts?.totalDiscount || 0;
-   const cleaningFee = this.additionalFees.cleaning;
-   const serviceFee = calculateServiceFees(
-      this.capacityFeesRules,
-      childCount,
-      adultcount,
-      this.additionalFees.service,
-   );
-   const taxAmount = Number(
-      (priceAfterDiscounts * (this.additionalFees.tax / 100)).toFixed(2),
-   );
-   return {
-      selectedDates: {
-         checkIn: checkIn,
-         checkout: checkOut,
-      },
-      guest: {
-         child: childCount,
-         adult: adultcount,
-      },
-      numberOfNights,
-      pricePerNight: this.basePrice.amount,
-      totalbasePrice,
-      discounts: discounts?.totalDiscount,
-      discountBreakdown: discounts?.discountBreakdown,
-      promoApplied: discounts?.promoApplied,
-      priceAfterDiscounts,
-      additionalFees: {
-         cleaning: cleaningFee,
-         service: serviceFee,
-         tax: taxAmount,
-      },
-      totalPrice: priceAfterDiscounts + cleaningFee + serviceFee + taxAmount,
-      currency: this.basePrice.currency,
-   };
-};
+PricingSchema.index({ propertyId: 1 })
+PricingSchema.index(
+   { "dailyRates.startDate": 1, "dailyRates.endDate": 1 }
+);
 
 export const Price = model('Price', PricingSchema);

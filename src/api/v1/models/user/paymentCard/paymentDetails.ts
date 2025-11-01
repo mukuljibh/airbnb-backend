@@ -1,4 +1,5 @@
 import { Schema, model } from 'mongoose';
+// Not in use currently
 
 const paymentCardSchema = new Schema(
    {

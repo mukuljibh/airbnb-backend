@@ -1,6 +1,13 @@
 import mongoose, { Document } from 'mongoose';
+import { USER_STATUS } from '../enums/user.enum';
 
 export type Role = 'guest' | 'admin' | 'host';
+
+
+type valueOf<T> = T[keyof T]
+
+export type UserStatus = valueOf<typeof USER_STATUS>;
+
 export interface IUser extends Document {
    _id: mongoose.Types.ObjectId;
    stripeCustomerId?: string;
@@ -11,6 +18,7 @@ export interface IUser extends Document {
    hasEmailVerified?: boolean;
    hasPhoneVerified?: boolean;
    hasBasicDetails?: boolean;
+   isDeactivated: boolean;
    email?: string;
    contactEmail?: string;
    dob?: Date;
@@ -24,7 +32,8 @@ export interface IUser extends Document {
    };
    password?: string;
    role?: Role[];
-   isSoftDelete: boolean;
+   status: UserStatus
+
    address?: {
       flatNo?: string;
       city?: string;
@@ -42,14 +51,37 @@ export interface IUser extends Document {
    };
    bio?: string;
    languages?: string[];
+   notificationSettings: {
+      hostingInsights: boolean;
+      newsUpdates: boolean;
+      travelTips: boolean;
+      messages: boolean;
+      reminders: boolean;
+      accountActivity: boolean;
+   };
    session?: {
       otpSessionId?: string;
       otpToken?: string;
       expire?: Date;
    };
+
+   statusMeta?: {
+      // Deletion can be done by admin  or user
+      previousStatus: UserStatus,
+      newStatus: UserStatus
+      changedBy: {
+         userId: string,
+         role: 'admin' | 'user' | 'system'
+      }
+      timestamp: Date,
+      reason: string
+   }[],
+
    expiresAt?: Date;
    createdAt?: Date;
    updatedAt?: Date;
+   deletionRequestedAt?: Date,
+   deletedAt?: Date;
 
    // Methods
    compareBcryptPassword(password: string): boolean;

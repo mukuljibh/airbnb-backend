@@ -1,87 +1,52 @@
 {
     "openapi": "3.0.0",
-    "info": {
-        "title": "User API",
-        "version": "1.0.0",
-        "description": "API documentation for user authentication and profile management."
-    },
-    "paths": {
-        "/api/v1/auth/user/send-otp": {
+  "info": {
+    "title": "node_project",
+    "version": "1.0.0",
+    "description": "Specification JSONs: [v2](/api-spec/v2), [v3](/api-spec/v3)."
+  },
+  "paths": {
+    "/api/v1/guest/auth/send-otp": {
             "post": {
                 "summary": "Send OTP",
+                "tags": ["Guest-Auth"],
                 "description": "This endpoint generates a One-Time Password (OTP) and sends it to either the specified email address or phone number, depending on the criteria provided. If the criteria is 'EMAIL', an OTP will be sent to the specified email address, and phone numbers are not allowed. If the criteria is 'PHONE', an OTP will be sent to the specified phone number, and email addresses are not allowed.",
                 "requestBody": {
                     "required": true,
                     "content": {
                         "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "criteria": {
-                                        "type": "string",
-                                        "enum": [
-                                            "EMAIL",
-                                            "PHONE"
-                                        ],
-                                        "example": "EMAIL",
-                                        "description": "The criteria to determine how OTP is sent (EMAIL or PHONE)."
-                                    },
-                                    "email": {
-                                        "type": "string",
-                                        "format": "email",
-                                        "example": "user@example.com",
-                                        "description": "The email to send OTP if criteria is EMAIL."
-                                    },
-                                    "phone": {
-                                        "type": "string",
-                                        "example": "1234567890",
-                                        "description": "The phone number to send OTP if criteria is PHONE."
-                                    },
-                                    "type": {
-                                        "type": "string",
-                                        "enum": [
-                                            "SIGN_UP_OTP",
-                                            "FORGET_PASSWORD_OTP"
-                                        ],
-                                        "example": "SIGN_UP_OTP",
-                                        "description": "The type of OTP request."
-                                    }
+                           "schema":{
+                              "type": "object",
+                              "properties": {
+                                "criteria": {
+                                  "type": "string",
+                                  "enum": ["EMAIL", "PHONE"]
                                 },
-                                "required": [
-                                    "criteria",
-                                    "type"
-                                ],
-                                "allOf": [
-                                    {
-                                        "if": {
-                                            "properties": {
-                                                "criteria": {
-                                                    "const": "EMAIL"
-                                                }
-                                            }
-                                        },
-                                        "then": {
-                                            "required": [
-                                                "email"
-                                            ]
-                                        }
-                                    },
-                                    {
-                                        "if": {
-                                            "properties": {
-                                                "criteria": {
-                                                    "const": "PHONE"
-                                                }
-                                            }
-                                        },
-                                        "then": {
-                                            "required": [
-                                                "phone"
-                                            ]
-                                        }
-                                    }
-                                ]
+                                "email": {
+                                  "type": "string",
+                                  "format": "email"
+                                },
+                                "phone": {
+                                  "type": "string"
+                                },
+                                "type": {
+                                  "type": "string",
+                                  "enum": ["SIGN_UP_OTP", "FORGET_PASSWORD_OTP"]
+                                }
+                              },
+                              "required": ["criteria", "type"],
+                              "oneOf": [
+                                {
+                                  "properties": { "criteria": { "const": "EMAIL" } },
+                                  "required": ["email"]
+                                },
+                                {
+                                  "properties": { "criteria": { "const": "PHONE" } },
+                                  "required": ["phone"]
+                                }
+                              ]
                             }
+
                         }
                     }
                 },
@@ -138,32 +103,23 @@
                 }
             }
         },
-        "/api/v1/auth/user/verify-otp": {
-            "post": {
-                "summary": "Verifies the OTP entered by the user for email verification or password recovery.",
-                "description": "This endpoint verifies the OTP provided by the user for either signup or password recovery. Based on the criteria ('EMAIL' or 'PHONE'), it will verify the OTP sent to the specified email address or phone number. If the OTP is valid, the process continues. If invalid, an error message is returned.",
-                "requestBody": {
+    "/api/v1/guest/auth/verify-otp": {
+      "post": {
+        "summary": "/api/v1/guest/auth/verify-otp",
+        "description": "This endpoint verifies the OTP provided by the user for either signup or password recovery. Based on the criteria ('EMAIL' or 'PHONE'), it will verify the OTP sent to the specified email address or phone number. If the OTP is valid, the process continues. If invalid, an error message is returned.",
+
+        "consumes": [
+          "application/json"
+        ],
+
+        "requestBody": {
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
-                                    "criteria": {
-                                        "type": "string",
-                                        "enum": [
-                                            "EMAIL",
-                                            "PHONE"
-                                        ],
-                                        "example": "EMAIL",
-                                        "description": "The criteria to determine how to verify OTP that is sent (EMAIL or PHONE)."
-                                    },
-                                    "email": {
-                                        "type": "string",
-                                        "format": "email",
-                                        "example": "user@example.com",
-                                        "description": "The email to which the OTP was sent."
-                                    },
+                                
                                     "otp": {
                                         "type": "string",
                                         "example": "123456",
@@ -171,9 +127,7 @@
                                     }
                                 },
                                 "required": [
-                                    "criteria",
-                                    "email",
-                                    "otp"
+                                 "otp"
                                 ]
                             }
                         }
@@ -196,13 +150,7 @@
                         "content": {
                             "application/json": {
                                 "examples": {
-                                    "email-missing": {
-                                        "summary": "Missing or invalid email",
-                                        "value": {
-                                            "success": false,
-                                            "message": "email is mandatory and must be a valid email"
-                                        }
-                                    },
+                                    
                                     "otp-missing": {
                                         "summary": "Missing OTP",
                                         "value": {
@@ -225,12 +173,15 @@
                             }
                         }
                     }
-                }
-            }
-        },
-        "/api/v1/auth/user/submit-profile": {
+                },
+        "tags": ["Guest-Auth"]
+      }
+    },
+    "/api/v1/auth/user/submit-profile": {
             "post": {
                 "summary": "Submit Profile",
+                "tags": ["Guest-Auth"],
+
                 "description": "Submits the user profile details, including first name, last name, date of birth, and password, after verifying the user's session.",
                 "requestBody": {
                     "required": true,
@@ -333,107 +284,80 @@
                     }
                 }
             }
-        },
-        "/api/v1/auth/user/logout": {
-            "get": {
-                "summary": "Logout user",
-                "responses": {
+    },
+    "/api/v1/guest/auth/logout": {
+      "post": {
+        "summary": "/api/v1/guest/auth/logout",
+        "consumes": [
+          "application/json"
+        ],
+        "description": "This api just required a cookie that is been set by server make sure always include credentials",
+        "parameters": [],
+          "responses": {
                     "200": {
-                        "description": "User logged out successfully",
+                        "description": "Logout",
                         "content": {
                             "application/json": {
                                 "example": {
                                     "success": true,
-                                    "message": "User logged out successfully."
+                                    "message": "Logout successful."
                                 }
                             }
                         }
-                    },
-                    "400": {
-                        "description": "User Session does not exists",
-                        "content": {
-                            "application/json": {
-                                "example": {
-                                    "success": "false",
-                                    "message": "No valid session to logout."
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/auth/user/login": {
-            "post": {
-                "summary": "User login",
-                "description": "This endpoint allows users to log in using either a valid email address or a valid phone number (as `loginKey`), along with a valid password. The password must meet certain complexity requirements.",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "loginKey": {
-                                        "type": "string",
-                                        "description": "Email address or phone number "
-                                    },
-                                    "password": {
-                                        "type": "string",
-                                        "description": "Password"
-                                    }
-                                },
-                                "required": [
-                                    "email",
-                                    "password"
-                                ]
-                            }
-                        }
-                    }
+                    }                 
                 },
-                "responses": {
-                    "200": {
-                        "description": "Login successful",
-                        "content": {
-                            "application/json": {
-                                "example": {
-                                    "success": true,
-                                    "message": "Login successful."
-                                }
-                            }
+        "tags": ["Guest-Auth"]
+      }
+    },
+    "/api/v1/guest/auth/login": {
+      "post": {
+        "summary": "/api/v1/guest/auth/login",
+        "consumes": [
+          "application/json"
+        ],
+
+         "requestBody": {
+                "required": true,
+                "content": {
+                "application/json": {
+                    "schema": {
+                    "type": "object",
+                    "properties": {
+                        "loginKey": {
+                        "type": "string",
+                        "example": "test@gmail.com",
+                        "description": "login key can either be phone or email."
+                        },
+                         "password": {
+                        "type": "string",
+                        "example": "Test@12345",
+                        "description": "password regex imposed"
                         }
                     },
-                    "401": {
-                        "description": "User does not have account with us",
-                        "content": {
-                            "application/json": {
-                                "example": {
-                                    "success": "false",
-                                    "message": "User account doesnot exists"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Validation error",
-                        "content": {
-                            "application/json": {
-                                "example": {
-                                    "errors": [
-                                        {
-                                            "msg": "Invalid email",
-                                            "param": "email",
-                                            "location": "body"
-                                        }
-                                    ]
-                                }
-                            }
-                        }
+                    "required": [ "loginKey","password"]
+                    
                     }
                 }
-            }
-        },
-        "/api/v1/auth/user/change-password": {
+                }
+            },
+            
+           "responses": {
+              "200": {
+                  "description": "User logged out successfully",
+                  "content": {
+                      "application/json": {
+                          "example": {
+                              "success": true,
+                              "message": "User logged out successfully."
+                          }
+                      }
+                  }
+              }
+                },
+        "tags": ["Guest-Auth"]
+      }
+    },
+    "/api/v1/auth/user/change-password": {
             "patch": {
                 "summary": "Change Password",
                 "description": "Changes the user's password after verifying the user's session token and validating the new password.",
@@ -458,7 +382,7 @@
                     }
                 },
                 "responses": {
-                    "201": {
+                    "200": {
                         "description": "Password successfully changed",
                         "content": {
                             "application/json": {
@@ -513,162 +437,2425 @@
                         }
                     }
                 },
-                "parameters": []
+                "parameters": [],
+                        "tags": ["Guest-Auth"]
+
             }
-        },
-        "api/v1/oauth/user/google": {
-            "get": {
-                "summary": "Authenticate using Google OAuth",
-                "operationId": "googleAuth",
-                "tags": [
-                    "OAuth"
-                ],
-                "description": "Redirects to Google for authentication. On success, redirects to the dashboard.",
-                "parameters": [
-                    {
-                        "name": "scope",
-                        "in": "query",
-                        "required": true,
-                        "description": "Google OAuth scope. 'profile' and 'email' are required.",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            },
-                            "example": [
-                                "profile",
-                                "email"
-                            ]
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Redirect to Google login page"
-                    },
-                    "401": {
-                        "description": "Unauthorized access"
-                    },
-                    "500": {
-                        "description": "Internal Server Error"
-                    }
-                }
-            }
-        },
-        "api/v1/oauth/user/google/callback": {
-            "get": {
-                "summary": "Google OAuth Callback",
-                "operationId": "googleCallback",
-                "tags": [
-                    "OAuth"
-                ],
-                "description": "Handles the Google OAuth callback. Redirects to the dashboard on success or login page on failure.",
-                "responses": {
-                    "200": {
-                        "description": "Successfully authenticated with Google",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "status": {
-                                            "type": "boolean",
-                                            "example": true
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Redirect to /dashboard route in future"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized access"
-                    },
-                    "500": {
-                        "description": "Internal Server Error"
-                    }
-                }
-            }
-        },
-        "api/v1/oauth/user/facebook": {
-            "get": {
-                "summary": "Authenticate using Facebook OAuth",
-                "operationId": "facebookAuth",
-                "tags": [
-                    "OAuth"
-                ],
-                "description": "Redirects to Facebook for authentication. On success, redirects to the dashboard.",
-                "parameters": [
-                    {
-                        "name": "scope",
-                        "in": "query",
-                        "required": true,
-                        "description": "Facebook OAuth scope. 'public_profile' and 'email' are required.",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            },
-                            "example": [
-                                "public_profile",
-                                "email"
-                            ]
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Redirect to Facebook login page"
-                    },
-                    "401": {
-                        "description": "Unauthorized access"
-                    },
-                    "500": {
-                        "description": "Internal Server Error"
-                    }
-                }
-            }
-        },
-        "api/v1/oauth/user/facebook/callback": {
-            "get": {
-                "summary": "Facebook OAuth Callback",
-                "operationId": "facebookCallback",
-                "tags": [
-                    "OAuth"
-                ],
-                "description": "Handles the Facebook OAuth callback. Redirects to the dashboard on success or login page on failure.",
-                "responses": {
-                    "200": {
-                        "description": "Successfully authenticated with Facebook",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "status": {
-                                            "type": "boolean",
-                                            "example": true
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Redirect to /dashboard route in future"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized access"
-                    },
-                    "500": {
-                        "description": "Internal Server Error"
-                    }
-                }
-            }
-        }
+    },
+    "/api/v1/guest/auth/login/google": {
+      "post": {
+        "summary": "/api/v1/guest/auth/login/google",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+       "tags": ["Guest-Auth"]
+
+      }
+    },
+
+  "/api/v1/guest/my-reviews": {
+      "get": {
+        "summary": "/api/v1/guest/my-reviews",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/guest/all-reviews/{hostId}": {
+      "get": {
+        "summary": "/api/v1/guest/all-reviews/{hostId}",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "hostId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/guest/all-published/{hostId}": {
+      "get": {
+        "summary": "/api/v1/guest/all-published/{hostId}",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "hostId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/guest/host-statistics": {
+      "get": {
+        "summary": "/api/v1/guest/host-statistics",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/guest/host-statistics/{hostId}": {
+      "get": {
+        "summary": "/api/v1/guest/host-statistics/{hostId}",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "hostId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+
+
+    "/api/v1/guest/user/become-host": {
+      "post": {
+        "summary": "/api/v1/guest/user/become-host",
+        "consumes": [
+          "application/json"
+        ],
+        "description": "Converts a guest user to a host user. Simply hit this API endpoint after successful login to upgrade user privileges from guest to host status.",
+
+        "parameters": [],
+        "responses": {},
+        "tags": ["Guest-User"]
+      }
+    },
+    "/api/v1/guest/user/{propertyId}/wishlist": {
+      "post": {
+        "description": "Add property to user's wishlist for future reference and easy access.",
+        "summary": "/api/v1/guest/user/{propertyId}/wishlist",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "propertyId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": ["Guest-User"]
+
+      },
+      "delete": {
+        "description": "Delete property from user's wishlist..",
+        "summary": "/api/v1/guest/user/{propertyId}/wishlist",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "propertyId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": ["Guest-User"]
+      }
+    },
+    "/api/v1/guest/user/wishlist": {
+      "get": {
+        "summary": "/api/v1/guest/user/wishlist",
+        "description": "get all user wishlists",
+
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": ["Guest-User"]
+      }
+    },
+    "/api/v1/guest/user/account/profile": {
+      "get": {
+        "summary": "/api/v1/guest/user/account/profile",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      },
+      "post": {
+        "summary": "/api/v1/guest/user/account/profile",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/guest/user/account/send-otp": {
+      "post": {
+        "summary": "/api/v1/guest/user/account/send-otp",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/guest/user/account/verify-otp": {
+      "post": {
+        "summary": "/api/v1/guest/user/account/verify-otp",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/guest/user/account/update-bio": {
+      "patch": {
+        "summary": "/api/v1/guest/user/account/update-bio",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/guest/user/account/update-password": {
+      "patch": {
+        "summary": "/api/v1/guest/user/account/update-password",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/guest/user/account/deactivate": {
+      "post": {
+        "summary": "/api/v1/guest/user/account/deactivate",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/guest/user/account/upload-picture": {
+      "patch": {
+        "summary": "/api/v1/guest/user/account/upload-picture",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/guest/user/account/kyc": {
+      "post": {
+        "summary": "/api/v1/guest/user/account/kyc",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/guest/user/account/onboarding-link": {
+      "post": {
+        "summary": "/api/v1/guest/user/account/onboarding-link",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/guest/user/account/update-bank-details": {
+      "patch": {
+        "summary": "/api/v1/guest/user/account/update-bank-details",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/guest/user/property/{propertyId}/review": {
+      "get": {
+        "summary": "/api/v1/guest/user/property/{propertyId}/review",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "propertyId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      },
+      "post": {
+        "summary": "/api/v1/guest/user/property/{propertyId}/review",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "propertyId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      },
+      "patch": {
+        "summary": "/api/v1/guest/user/property/{propertyId}/review",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "propertyId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      },
+      "delete": {
+        "summary": "/api/v1/guest/user/property/{propertyId}/review",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "propertyId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/guest/reservation": {
+      "get": {
+        "summary": "/api/v1/guest/reservation",
+        "description": "Add property to user's wishlist for future reference and easy access.",
+
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/guest/reservation/past-reservations": {
+      "get": {
+        "summary": "/api/v1/guest/reservation/past-reservations",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/guest/reservation/{reservationId}/details": {
+      "get": {
+        "summary": "/api/v1/guest/reservation/{reservationId}/details",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "reservationId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/guest/reservation/{resourceId}/pay": {
+      "post": {
+        "summary": "/api/v1/guest/reservation/{resourceId}/pay",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "resourceId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/guest/reservation/{reservationId}/retrieve-payment-link": {
+      "get": {
+        "summary": "/api/v1/guest/reservation/{reservationId}/retrieve-payment-link",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "reservationId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/guest/reservation/invoice/{reservationId}": {
+      "get": {
+        "summary": "/api/v1/guest/reservation/invoice/{reservationId}",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "reservationId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/guest/reservation/{reservationId}/cancel": {
+      "post": {
+        "summary": "/api/v1/guest/reservation/{reservationId}/cancel",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "reservationId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/guest/notification": {
+      "get": {
+        "summary": "/api/v1/guest/notification",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/guest/notification/{notificationId}": {
+      "patch": {
+        "summary": "/api/v1/guest/notification/{notificationId}",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "notificationId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      },
+      "delete": {
+        "summary": "/api/v1/guest/notification/{notificationId}",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "notificationId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/guest/notification/toggle-notifications": {
+      "put": {
+        "summary": "/api/v1/guest/notification/toggle-notifications",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/guest/promo/get-promos": {
+      "get": {
+        "summary": "/api/v1/guest/promo/get-promos",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/guest/promo/apply-promo": {
+      "post": {
+        "summary": "/api/v1/guest/promo/apply-promo",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/guest/properties/amenities": {
+      "get": {
+        "summary": "/api/v1/guest/properties/amenities",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/guest/properties/categories": {
+      "get": {
+        "summary": "/api/v1/guest/properties/categories",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/guest/properties/search": {
+      "get": {
+        "summary": "/api/v1/guest/properties/search",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/guest/properties/filter-property": {
+      "get": {
+        "summary": "/api/v1/guest/properties/filter-property",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/guest/properties/explore-stays": {
+      "get": {
+        "summary": "/api/v1/guest/properties/explore-stays",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/guest/properties/trending-stays": {
+      "get": {
+        "summary": "/api/v1/guest/properties/trending-stays",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/guest/properties/recommended-stays": {
+      "get": {
+        "summary": "/api/v1/guest/properties/recommended-stays",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/guest/properties/{propertyId}/reviews": {
+      "get": {
+        "summary": "/api/v1/guest/properties/{propertyId}/reviews",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "propertyId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/guest/properties/{propertyId}/calculate-price": {
+      "get": {
+        "summary": "/api/v1/guest/properties/{propertyId}/calculate-price",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "propertyId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/guest/properties/{id}": {
+      "get": {
+        "summary": "/api/v1/guest/properties/{id}",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/guest/conversations": {
+      "get": {
+        "summary": "/api/v1/guest/conversations",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/guest/conversations/initiate-conversation": {
+      "post": {
+        "summary": "/api/v1/guest/conversations/initiate-conversation",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/guest/conversations/{roomId}": {
+      "get": {
+        "summary": "/api/v1/guest/conversations/{roomId}",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "roomId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/guest/others/uploads/single": {
+      "post": {
+        "summary": "/api/v1/guest/others/uploads/single",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/guest/others/uploads/multiple": {
+      "post": {
+        "summary": "/api/v1/guest/others/uploads/multiple",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/my-reviews": {
+      "get": {
+        "summary": "/api/v1/host/my-reviews",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/all-reviews/{hostId}": {
+      "get": {
+        "summary": "/api/v1/host/all-reviews/{hostId}",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "hostId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/all-published/{hostId}": {
+      "get": {
+        "summary": "/api/v1/host/all-published/{hostId}",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "hostId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/host-statistics": {
+      "get": {
+        "summary": "/api/v1/host/host-statistics",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/host-statistics/{hostId}": {
+      "get": {
+        "summary": "/api/v1/host/host-statistics/{hostId}",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "hostId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/auth/send-otp": {
+      "post": {
+        "summary": "/api/v1/host/auth/send-otp",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/auth/verify-otp": {
+      "post": {
+        "summary": "/api/v1/host/auth/verify-otp",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/auth/submit-profile": {
+      "post": {
+        "summary": "/api/v1/host/auth/submit-profile",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/auth/logout": {
+      "post": {
+        "summary": "/api/v1/host/auth/logout",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/auth/login": {
+      "post": {
+        "summary": "/api/v1/host/auth/login",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/auth/change-password": {
+      "patch": {
+        "summary": "/api/v1/host/auth/change-password",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/auth/facebook": {
+      "get": {
+        "summary": "/api/v1/host/auth/facebook",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/auth/facebook/callback": {
+      "get": {
+        "summary": "/api/v1/host/auth/facebook/callback",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/auth/login/google": {
+      "post": {
+        "summary": "/api/v1/host/auth/login/google",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/user/property/{propertyId}/toggle-status": {
+      "patch": {
+        "summary": "/api/v1/host/user/property/{propertyId}/toggle-status",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "propertyId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/user/property/{propertyId}/toggle-booking": {
+      "patch": {
+        "summary": "/api/v1/host/user/property/{propertyId}/toggle-booking",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "propertyId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/user/properties": {
+      "get": {
+        "summary": "/api/v1/host/user/properties",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/user/property/{propertyId}": {
+      "delete": {
+        "summary": "/api/v1/host/user/property/{propertyId}",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "propertyId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      },
+      "get": {
+        "summary": "/api/v1/host/user/property/{propertyId}",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "propertyId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/user/property": {
+      "post": {
+        "summary": "/api/v1/host/user/property",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/user/property/{propertyId}/checkpoint": {
+      "patch": {
+        "summary": "/api/v1/host/user/property/{propertyId}/checkpoint",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "propertyId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/user/draft/{draftId}/submit-for-approval": {
+      "post": {
+        "summary": "/api/v1/host/user/draft/{draftId}/submit-for-approval",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "draftId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/user/account/profile": {
+      "get": {
+        "summary": "/api/v1/host/user/account/profile",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      },
+      "post": {
+        "summary": "/api/v1/host/user/account/profile",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/user/account/send-otp": {
+      "post": {
+        "summary": "/api/v1/host/user/account/send-otp",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/user/account/verify-otp": {
+      "post": {
+        "summary": "/api/v1/host/user/account/verify-otp",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/user/account/update-bio": {
+      "patch": {
+        "summary": "/api/v1/host/user/account/update-bio",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/user/account/update-password": {
+      "patch": {
+        "summary": "/api/v1/host/user/account/update-password",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/user/account/deactivate": {
+      "post": {
+        "summary": "/api/v1/host/user/account/deactivate",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/user/account/upload-picture": {
+      "patch": {
+        "summary": "/api/v1/host/user/account/upload-picture",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/user/account/kyc": {
+      "post": {
+        "summary": "/api/v1/host/user/account/kyc",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/user/account/onboarding-link": {
+      "post": {
+        "summary": "/api/v1/host/user/account/onboarding-link",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/user/account/update-bank-details": {
+      "patch": {
+        "summary": "/api/v1/host/user/account/update-bank-details",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/user/property/{propertyId}/review": {
+      "get": {
+        "summary": "/api/v1/host/user/property/{propertyId}/review",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "propertyId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      },
+      "post": {
+        "summary": "/api/v1/host/user/property/{propertyId}/review",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "propertyId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      },
+      "patch": {
+        "summary": "/api/v1/host/user/property/{propertyId}/review",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "propertyId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      },
+      "delete": {
+        "summary": "/api/v1/host/user/property/{propertyId}/review",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "propertyId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/analytics/dashboard": {
+      "get": {
+        "summary": "/api/v1/host/analytics/dashboard",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/analytics/revenue": {
+      "get": {
+        "summary": "/api/v1/host/analytics/revenue",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/analytics/calender-insights/{propertyId}": {
+      "get": {
+        "summary": "/api/v1/host/analytics/calender-insights/{propertyId}",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "propertyId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/reservation/block-availablity/{propertyId}": {
+      "get": {
+        "summary": "/api/v1/host/reservation/block-availablity/{propertyId}",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "propertyId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      },
+      "post": {
+        "summary": "/api/v1/host/reservation/block-availablity/{propertyId}",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "propertyId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/reservation/block-availablity/{reservationId}": {
+      "delete": {
+        "summary": "/api/v1/host/reservation/block-availablity/{reservationId}",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "reservationId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      },
+      "patch": {
+        "summary": "/api/v1/host/reservation/block-availablity/{reservationId}",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "reservationId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/reservation/host-properties/{propertyId}": {
+      "get": {
+        "summary": "/api/v1/host/reservation/host-properties/{propertyId}",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "propertyId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/reservation": {
+      "get": {
+        "summary": "/api/v1/host/reservation",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/reservation/all-reservations": {
+      "get": {
+        "summary": "/api/v1/host/reservation/all-reservations",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/reservation/all-transactions": {
+      "get": {
+        "summary": "/api/v1/host/reservation/all-transactions",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/reservation/{reservationId}": {
+      "get": {
+        "summary": "/api/v1/host/reservation/{reservationId}",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "reservationId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/reservation/{reservationId}/status": {
+      "patch": {
+        "summary": "/api/v1/host/reservation/{reservationId}/status",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "reservationId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/notification": {
+      "get": {
+        "summary": "/api/v1/host/notification",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/notification/{notificationId}": {
+      "patch": {
+        "summary": "/api/v1/host/notification/{notificationId}",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "notificationId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      },
+      "delete": {
+        "summary": "/api/v1/host/notification/{notificationId}",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "notificationId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/notification/toggle-notifications": {
+      "put": {
+        "summary": "/api/v1/host/notification/toggle-notifications",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/properties/amenities": {
+      "get": {
+        "summary": "/api/v1/host/properties/amenities",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/properties/categories": {
+      "get": {
+        "summary": "/api/v1/host/properties/categories",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/properties/{propertyId}/reviews": {
+      "get": {
+        "summary": "/api/v1/host/properties/{propertyId}/reviews",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "propertyId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/properties/{id}": {
+      "get": {
+        "summary": "/api/v1/host/properties/{id}",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/conversations": {
+      "get": {
+        "summary": "/api/v1/host/conversations",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/conversations/initiate-conversation": {
+      "post": {
+        "summary": "/api/v1/host/conversations/initiate-conversation",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/conversations/{roomId}": {
+      "get": {
+        "summary": "/api/v1/host/conversations/{roomId}",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "roomId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/others/uploads/single": {
+      "post": {
+        "summary": "/api/v1/host/others/uploads/single",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/host/others/uploads/multiple": {
+      "post": {
+        "summary": "/api/v1/host/others/uploads/multiple",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/admin/auth/login": {
+      "post": {
+        "summary": "/api/v1/admin/auth/login",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/admin/auth/send-otp": {
+      "post": {
+        "summary": "/api/v1/admin/auth/send-otp",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/admin/auth/verify-otp": {
+      "post": {
+        "summary": "/api/v1/admin/auth/verify-otp",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/admin/auth/change-password": {
+      "patch": {
+        "summary": "/api/v1/admin/auth/change-password",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/admin/auth/logout": {
+      "post": {
+        "summary": "/api/v1/admin/auth/logout",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/admin/analytics/dashboard": {
+      "get": {
+        "summary": "/api/v1/admin/analytics/dashboard",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/admin/analytics/revenue": {
+      "get": {
+        "summary": "/api/v1/admin/analytics/revenue",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/admin/properties/analytics-statistics": {
+      "get": {
+        "summary": "/api/v1/admin/properties/analytics-statistics",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/admin/properties": {
+      "get": {
+        "summary": "/api/v1/admin/properties",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/admin/properties/amenities": {
+      "get": {
+        "summary": "/api/v1/admin/properties/amenities",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      },
+      "post": {
+        "summary": "/api/v1/admin/properties/amenities",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/admin/properties/amenities/{tagId}": {
+      "patch": {
+        "summary": "/api/v1/admin/properties/amenities/{tagId}",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "tagId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      },
+      "delete": {
+        "summary": "/api/v1/admin/properties/amenities/{tagId}",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "tagId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/admin/properties/amenities/toggle-status/{tagId}": {
+      "patch": {
+        "summary": "/api/v1/admin/properties/amenities/toggle-status/{tagId}",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "tagId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/admin/properties/categories": {
+      "get": {
+        "summary": "/api/v1/admin/properties/categories",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/admin/properties/category": {
+      "post": {
+        "summary": "/api/v1/admin/properties/category",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/admin/properties/category/{categoryId}": {
+      "get": {
+        "summary": "/api/v1/admin/properties/category/{categoryId}",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "categoryId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      },
+      "patch": {
+        "summary": "/api/v1/admin/properties/category/{categoryId}",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "categoryId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      },
+      "delete": {
+        "summary": "/api/v1/admin/properties/category/{categoryId}",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "categoryId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/admin/properties/approve/{propertyId}": {
+      "post": {
+        "summary": "/api/v1/admin/properties/approve/{propertyId}",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "propertyId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/admin/properties/{propertyId}/status": {
+      "patch": {
+        "summary": "/api/v1/admin/properties/{propertyId}/status",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "propertyId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/admin/properties/{propertyId}/reviews": {
+      "get": {
+        "summary": "/api/v1/admin/properties/{propertyId}/reviews",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "propertyId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/admin/properties/{id}": {
+      "get": {
+        "summary": "/api/v1/admin/properties/{id}",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/admin/users/queries": {
+      "get": {
+        "summary": "/api/v1/admin/users/queries",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/admin/users/queries/{queryId}": {
+      "patch": {
+        "summary": "/api/v1/admin/users/queries/{queryId}",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "queryId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/admin/users": {
+      "get": {
+        "summary": "/api/v1/admin/users",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/admin/users/host-statistics/{hostId}": {
+      "get": {
+        "summary": "/api/v1/admin/users/host-statistics/{hostId}",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "hostId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/admin/users/host-reviews/{hostId}": {
+      "get": {
+        "summary": "/api/v1/admin/users/host-reviews/{hostId}",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "hostId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/admin/users/{hostId}": {
+      "get": {
+        "summary": "/api/v1/admin/users/{hostId}",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "hostId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/admin/users/{id}": {
+      "put": {
+        "summary": "/api/v1/admin/users/{id}",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      },
+      "delete": {
+        "summary": "/api/v1/admin/users/{id}",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/admin/account/update-password": {
+      "patch": {
+        "summary": "/api/v1/admin/account/update-password",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/admin/account/profile": {
+      "get": {
+        "summary": "/api/v1/admin/account/profile",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      },
+      "patch": {
+        "summary": "/api/v1/admin/account/profile",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/admin/promo": {
+      "get": {
+        "summary": "/api/v1/admin/promo",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      },
+      "post": {
+        "summary": "/api/v1/admin/promo",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/admin/promo/{promoId}": {
+      "get": {
+        "summary": "/api/v1/admin/promo/{promoId}",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "promoId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      },
+      "patch": {
+        "summary": "/api/v1/admin/promo/{promoId}",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "promoId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      },
+      "delete": {
+        "summary": "/api/v1/admin/promo/{promoId}",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "promoId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/admin/promo/{promoId}/toggle-status": {
+      "patch": {
+        "summary": "/api/v1/admin/promo/{promoId}/toggle-status",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "promoId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/admin/reservation/host-properties/{propertyId}": {
+      "get": {
+        "summary": "/api/v1/admin/reservation/host-properties/{propertyId}",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "propertyId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/admin/reservation/all-reservations": {
+      "get": {
+        "summary": "/api/v1/admin/reservation/all-reservations",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/admin/reservation/all-transactions": {
+      "get": {
+        "summary": "/api/v1/admin/reservation/all-transactions",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/admin/reservation/{reservationId}": {
+      "get": {
+        "summary": "/api/v1/admin/reservation/{reservationId}",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "reservationId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/admin/notification": {
+      "get": {
+        "summary": "/api/v1/admin/notification",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/admin/notification/{notificationId}": {
+      "patch": {
+        "summary": "/api/v1/admin/notification/{notificationId}",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "notificationId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      },
+      "delete": {
+        "summary": "/api/v1/admin/notification/{notificationId}",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "notificationId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/admin/privacy-policies": {
+      "post": {
+        "summary": "/api/v1/admin/privacy-policies",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/admin/privacy-policies/{policyId}": {
+      "patch": {
+        "summary": "/api/v1/admin/privacy-policies/{policyId}",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "policyId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/admin/others/uploads/single": {
+      "post": {
+        "summary": "/api/v1/admin/others/uploads/single",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/admin/others/uploads/multiple": {
+      "post": {
+        "summary": "/api/v1/admin/others/uploads/multiple",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/admin/others/privacy-policies": {
+      "get": {
+        "summary": "/api/v1/admin/others/privacy-policies",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/admin/others/news-letter/subscribe": {
+      "post": {
+        "summary": "/api/v1/admin/others/news-letter/subscribe",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/admin/others/news-letter/unsubscribe": {
+      "patch": {
+        "summary": "/api/v1/admin/others/news-letter/unsubscribe",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/admin/others/webhook/connect": {
+      "post": {
+        "summary": "/api/v1/admin/others/webhook/connect",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/admin/others/webhook": {
+      "post": {
+        "summary": "/api/v1/admin/others/webhook",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/admin/others/contact-us": {
+      "post": {
+        "summary": "/api/v1/admin/others/contact-us",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/admin/others/data": {
+      "post": {
+        "summary": "/api/v1/admin/others/data",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/others/uploads/single": {
+      "post": {
+        "summary": "/api/v1/others/uploads/single",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/others/uploads/multiple": {
+      "post": {
+        "summary": "/api/v1/others/uploads/multiple",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/others/privacy-policies": {
+      "get": {
+        "summary": "/api/v1/others/privacy-policies",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/others/news-letter/subscribe": {
+      "post": {
+        "summary": "/api/v1/others/news-letter/subscribe",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/others/news-letter/unsubscribe": {
+      "patch": {
+        "summary": "/api/v1/others/news-letter/unsubscribe",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/others/webhook/connect": {
+      "post": {
+        "summary": "/api/v1/others/webhook/connect",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/others/webhook": {
+      "post": {
+        "summary": "/api/v1/others/webhook",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/others/contact-us": {
+      "post": {
+        "summary": "/api/v1/others/contact-us",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/others/data": {
+      "post": {
+        "summary": "/api/v1/others/data",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/": {
+      "get": {
+        "summary": "/",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {},
+        "tags": []
+      }
     }
+  }
 }

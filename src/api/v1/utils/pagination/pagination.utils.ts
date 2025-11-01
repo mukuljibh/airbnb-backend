@@ -5,24 +5,25 @@ export function formatPaginationResponse<T>(
    totalDocuments: number,
    pagination: IPaginationAttributes,
 ) {
-   const { page, limit } = pagination;
+   const { page, limit, startIndex, endIndex, } = pagination;
    const totalPages = Math.ceil(totalDocuments / limit);
+   const paginationResult: PaginationProps = {
+      totalPages,
+      totalDocuments,
+      current: { page, limit },
+   };
 
-   if ((page - 1) * limit >= totalDocuments) {
+   if (startIndex >= totalDocuments) {
       return {
-         pagination: { totalPages, totalDocuments },
+         pagination: paginationResult,
          result: [],
       };
    }
 
-   const paginationResult: PaginationProps = {
-      totalPages,
-      totalDocuments,
-   };
-   if (pagination.startIndex > 0) {
+   if (startIndex > 0) {
       paginationResult.prev = { page: page - 1, limit };
    }
-   if (pagination.endIndex < totalDocuments) {
+   if (endIndex < totalDocuments) {
       paginationResult.next = { page: page + 1, limit };
    }
    paginationResult.totalPages = totalPages;

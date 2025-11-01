@@ -1,45 +1,22 @@
 import express from 'express';
 import verifyRoutesAndAuthorizedRoles from '../../middleware/authorization/verifyRoutesAndAuthorizedRoles';
-import adminPropertySettingsRoutes from './properties/admin.properties.settings.secure.routes';
-import adminUserSettingsRoutes from './users/admin.user.settings.secure.routes';
-import * as commonUserController from '../../controllers/common/user/common.user.controller';
-import { verifyProfileSession } from '../../middleware/authentication/verifyProfileSession';
-import { validateVerifyOtp } from '../../validation/general/user/general.user.auth.validation';
-import adminPrivacyPolicyRoutes from './privacy-policy/admin.privacyPolicy.secure.route';
+import adminPropertySettingsRoutes from './properties/properties.routes';
+import adminUserSettingsRoutes from './users/user.routes';
+import adminPrivacyPolicyRoutes from './privacy-policy/privacyPolicy.route';
 import otherRoutes from './../others/index';
-import adminReservationRoutes from './reservation/admin.reservation.settings.secure.route';
-import adminAccountSettingRoutes from './account/admin.account.settings.secure';
-import adminPromoRoutes from './promo/admin.promo.routes';
-import adminAnalyticsRoutes from './analytics/admin.analytics.route';
+import adminReservationRoutes from './reservation/reservation.route';
+import adminAccountSettingRoutes from './account/account.secure';
+import adminPromoRoutes from './promo/promo.routes';
+import adminAnalyticsRoutes from './analytics/analytics.route';
+import adminNotificationRoute from './notification/notification.route';
+import adminAuthRoute from './auth/auth.route';
+import adminConversationRoute from "./conversations/conversation.route"
+import adminHelpRoute from "./../admin/help/help.route"
 const router = express.Router();
 
-/* 
-|-------------------------------------------------------------------
-| Public Authentication Routes (No Admin Verification Required)
-|-------------------------------------------------------------------
-| These routes handle admin role authentication.
-*/
-router.post('/auth/login', commonUserController.userLogin);
-router.post('/auth/send-otp', commonUserController.sendOtpToEmail);
-router.post(
-   '/auth/verify-otp',
-   validateVerifyOtp,
-   commonUserController.verifyUserOtp,
-);
+// all admin login kind of operation proceed from here
+router.use('/auth', adminAuthRoute);
 
-// Change password requires profile session verification
-router.patch(
-   '/auth/change-password',
-   verifyProfileSession('profilesessionid'),
-   commonUserController.userChangePassword,
-);
-
-// Logout route, but it requires admin role verification
-router.post(
-   '/auth/logout',
-   verifyRoutesAndAuthorizedRoles('admin'),
-   commonUserController.userLogout,
-);
 // all analytics kind of operation proceed from here
 router.use(
    '/analytics',
@@ -84,6 +61,14 @@ router.use(
    adminReservationRoutes,
 );
 
+router.use(
+   '/notification',
+   verifyRoutesAndAuthorizedRoles('admin'),
+   adminNotificationRoute,
+);
+
+
+router.use('/conversations', verifyRoutesAndAuthorizedRoles('admin'), adminConversationRoute)
 /* 
 |-------------------------------------------------------------------
 | Public Routes (Require Authorization)
@@ -96,6 +81,13 @@ router.use(
    '/privacy-policies',
    verifyRoutesAndAuthorizedRoles('admin'),
    adminPrivacyPolicyRoutes,
+);
+
+// Privacy Policy Routes
+router.use(
+   '/help',
+   verifyRoutesAndAuthorizedRoles('admin'),
+   adminHelpRoute,
 );
 
 // Miscellaneous Routes

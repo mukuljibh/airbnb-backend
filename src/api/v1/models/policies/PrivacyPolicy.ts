@@ -30,7 +30,8 @@ const PrivacyPolicySchema = new mongoose.Schema(
 );
 
 // Create model
-export const PrivacyPolicy = mongoose.model(
+const PrivacyPolicy = mongoose.model(
    'PrivacyPolicy',
    PrivacyPolicySchema,
 );
+export default PrivacyPolicy

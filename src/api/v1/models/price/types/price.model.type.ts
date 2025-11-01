@@ -81,6 +81,44 @@ export interface IBilling {
       adult: number;
    };
 }
+export interface BillingDetails {
+   selectedDates: {
+      checkIn: Date;
+      checkOut: Date;
+   };
+   guest: {
+      child: number;
+      adult: number;
+   };
+   numberOfNights: number;
+   pricePerNight: number;
+   totalbasePrice: number;
+   additionalFees: {
+      cleaning: number;
+      service: number;
+      tax: number;
+      platformFees: number;
+   };
+   discounts: number;
+   discountBreakdown: Partial<{
+      lengthDiscount: number;
+      promoCodeDiscount: number;
+      lengthDiscountPercentage: number;
+   }>;
+   currencyExchangeRate: {
+      rate: number;
+      baseCurrency: string;
+      targetCurrency: string;
+      timestamp: Date;
+   };
+   lengthDiscountPercentage: number;
+   taxPercentage: number;
+   priceAfterDiscounts: number;
+   subTotal: number;
+   totalPrice: number;
+   currency: string;
+}
+
 export interface IPricing extends Document {
    _id: mongoose.Types.ObjectId;
    propertyId: mongoose.Types.ObjectId;
@@ -95,7 +133,13 @@ export interface IPricing extends Document {
    additionalFees: IAdditionalFees;
    specialDates: ISpecialDate[];
    weekendMultiplier: number;
-   calculateBasePprice(checkIn: Date, checkOut: Date): number;
+   dailyRates: {
+      price: number;
+      startDate: Date;
+      endDate: Date;
+   }[]
+
+   calculateBasePrice(checkIn: Date, checkOut: Date, basePrice: number): number;
    calculateDiscount(basePrice: number, numberOfNights: number): number;
    calculateTotalPrice(
       checkIn: Date | string,
@@ -104,5 +148,6 @@ export interface IPricing extends Document {
       adultCount: number | 1,
       userId?: string,
       promoCode?: string,
+      currency?: string
    ): Promise<BillingProps>;
 }

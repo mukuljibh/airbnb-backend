@@ -1,6 +1,6 @@
-import { query, validationResult } from 'express-validator';
+import { body, query, validationResult } from 'express-validator';
 import { ApiError } from '../../../utils/error-handlers/ApiError';
-import { dateRegex } from '../../../utils/regex/regex.constant';
+import { dateRegex } from '../../../constant/regex.constant';
 
 export const validateReservation = [
    query('propertyid').notEmpty().withMessage('propertyid is mandatory').bail(),
@@ -37,6 +37,26 @@ export const validateReservation = [
 ];
 
 export const validateReservationPayment = [
+   body('name')
+      .exists()
+      .withMessage('Guest name is mandatory')
+      .isString()
+      .withMessage('Guest name must be a string')
+      .trim(),
+
+   body('email')
+      .exists()
+      .withMessage('Guest email is mandatory')
+      .isString()
+      .withMessage('Guest email must be a string')
+      .trim(),
+   body('phone')
+      .exists()
+      .withMessage('Guest phone is mandatory')
+      .isString()
+      .withMessage('Guest phone must be a string')
+      .trim(),
+
    query('checkIn')
       .exists()
       .withMessage('Check-in date is mandatory')

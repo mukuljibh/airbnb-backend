@@ -1,0 +1,155 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your receipt from Airbnb</title>
+  </head>
+  <body style="margin:0; padding:0; background-color:#f7f7f7; font-family:Arial, sans-serif;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color:#f7f7f7; padding:20px 0;">
+      <tr>
+        <td align="center">
+          <!-- Container -->
+          <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="width:100%; max-width:600px; background-color:#ffffff; border-collapse:collapse;">
+            
+            <!-- Header -->
+            <tr>
+              <td style="padding:24px; font-weight:bold; font-size:18px; color:#00858e;">
+                AIRBNB
+              </td>
+            </tr>
+            
+            <!-- Title -->
+            <tr>
+              <td style="padding:0 24px 8px; font-size:28px; font-weight:bold; color:#3c3c3c;">
+                Your receipt from Airbnb
+              </td>
+            </tr>
+            
+            <!-- Receipt Info -->
+            <tr>
+              <td style="padding:0 24px 24px; font-size:14px; color:#717171;">
+                Receipt ID: {{billingCode}} • {{confirmedAt}}
+              </td>
+            </tr>
+            
+            <!-- Property Section -->
+            <tr>
+              <td style="padding:0 24px 24px; border-bottom:1px solid #e9ecef;">
+                <div style="font-size:20px; font-weight:600; color:#222222; margin-bottom:8px;">{{propertyName}}</div>
+                <div style="font-size:14px; color:#717171; margin-bottom:16px;">{{numberOfNights}} nights in {{propertyName}}</div>
+                
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#f8f9fa;">
+                  <tr>
+                    <td style="padding:8px; font-size:14px; color:#717171;">{{checkInDate}}</td>
+                    <td align="right" style="padding:8px; font-size:14px; font-weight:500; color:#222222;">{{checkOutDate}}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:8px; font-size:14px; color:#717171;">Guests</td>
+                    <td align="right" style="padding:8px; font-size:14px; font-weight:500; color:#222222;">{{numberOfGuests}} guest</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:8px; font-size:14px; color:#717171;">Confirmation code</td>
+                    <td align="right" style="padding:8px; font-size:14px; font-weight:500; color:#222222;">{{reservationCode}}</td>
+                  </tr>
+                </table>
+
+                <div style="margin-top:12px;">
+                  <a href="https://mainwebsite-dev.netlify.app/booking" style="font-size:14px; color:#222222; font-weight:600; text-decoration:underline;">Go to listing</a>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Cancellation Policy (separate row so Gmail can't drop it) -->
+            <tr>
+              <td style="padding:24px; border-bottom:1px solid #e9ecef;">
+                <div style="font-weight:600; color:#222222; margin-bottom:8px;">Cancellation policy</div>
+                <div style="font-size:14px; color:#717171; line-height:1.5;">
+                  Cancellations are non-refundable if made within 48 hours of the scheduled check-in date, or if the check-in date is within 48 hours of the cancellation request — whichever occurs first.
+                  <a href="https://mainwebsite-dev.netlify.app/policies?type=bookingCancellationPolicy" style="color:#222222; font-weight:600; text-decoration:underline;">Learn more</a>
+                </div>
+              </td>
+            </tr>
+            
+            <!-- Price Breakdown -->
+            <tr>
+              <td style="padding:24px;">
+                <div style="font-size:18px; font-weight:600; color:#222222; margin-bottom:16px;">Price breakdown</div>
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                  <tr>
+                    <td style="padding:12px 0; font-size:14px; color:#717171;">{{pricePerNight}} x {{numberOfNights}} nights</td>
+                    <td align="right" style="padding:12px 0; font-size:14px; font-weight:500; color:#222222;">{{totalBasePrice}}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:12px 0; font-size:14px; color:#717171;">Discounts</td>
+                    <td align="right" style="padding:12px 0; font-size:14px; font-weight:500; color:#222222;">-{{discounts}}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:12px 0; font-size:14px; color:#717171;">Cleaning fee</td>
+                    <td align="right" style="padding:12px 0; font-size:14px; font-weight:500; color:#222222;">{{cleaningFees}}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:12px 0; font-size:14px; color:#717171;">Service fee</td>
+                    <td align="right" style="padding:12px 0; font-size:14px; font-weight:500; color:#222222;">{{serviceFees}}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:12px 0; font-size:14px; font-weight:bold; color:#222222;">Subtotal</td>
+                    <td align="right" style="padding:12px 0; font-size:14px; font-weight:500; color:#222222;">{{subTotal}}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:12px 0; font-size:14px; color:#717171;">Taxes (Applicable on subtotal)</td>
+                    <td align="right" style="padding:12px 0; font-size:14px; font-weight:500; color:#222222;">{{tax}}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:12px 0; font-size:14px; color:#717171;">Platform fee</td>
+                    <td align="right" style="padding:12px 0; font-size:14px; font-weight:500; color:#222222;">{{platformFees}}</td>
+                  </tr>
+                </table>
+
+                <!-- Total -->
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-top:12px;">
+                  <tr>
+                    <td style="padding:16px 0; font-size:16px; font-weight:600; color:#222222;">Total ({{currency}})</td>
+                    <td align="right" style="padding:16px 0; font-size:16px; font-weight:600; color:#222222;">{{totalAmountPaid}}</td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- Payment (optional, keep if you use it) -->
+            <tr>
+              <td style="padding:0 24px 24px;">
+                <div style="font-size:18px; font-weight:600; color:#222222; margin:16px 0 8px;">Payment</div>
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#f8f9fa;">
+                  <tr>
+                    <td style="padding:8px; font-size:14px; color:#717171;">{{paymentCard}}</td>
+                    <td align="right" style="padding:8px; font-size:14px; font-weight:500; color:#222222;">{{totalAmountPaid}}</td>
+                  </tr>
+                </table>
+                <div style="font-size:12px; color:#717171; margin-top:8px;">{{confirmedAt}}</div>
+              </td>
+            </tr>
+
+            <!-- Buttons -->
+            <tr>
+              <td style="padding:0 24px 24px;">
+                <a href="https://mainwebsite-dev.netlify.app/booking" style="display:inline-block; background-color:#00858e; color:#ffffff; padding:12px 24px; text-decoration:none; font-size:14px; font-weight:600; margin-right:8px;">Print this receipt</a>
+                <a href="https://mainwebsite-dev.netlify.app" style="display:inline-block; background-color:#ffffff; color:#222222; padding:12px 24px; text-decoration:none; font-size:14px; font-weight:600; border:1px solid #dddddd;">Go to itinerary</a>
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td style="padding:24px; font-size:12px; color:#717171; border-top:1px solid #e0e0e0;">
+                Airbnb Ireland UC<br>
+                8 Hanover Quay<br>
+                Dublin 2, Ireland
+              </td>
+            </tr>
+
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

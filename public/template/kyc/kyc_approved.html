@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Good news, your identity is now verified - Airbnb</title>
+      <style>
+         * {
+            margin: 0;
+            padding: 0;
+         }
+
+         body {
+            font-family:
+               -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial,
+               sans-serif;
+            background-color: #f7f7f7;
+            margin: 0;
+            padding: 0;
+         }
+
+         table {
+            border-collapse: collapse;
+            mso-table-lspace: 0pt;
+            mso-table-rspace: 0pt;
+         }
+
+         .airbnb-logo {
+            border-radius: 16px;
+            color: #00858e;
+            font-weight: bold;
+            font-size: 18px;
+            line-height: 32px;
+         }
+
+         .main-heading {
+            font-size: 28px;
+            font-weight: 700;
+            color: #3c3c3c;
+            line-height: 1.2;
+            text-align: left;
+            margin: 16px 0;
+         }
+
+         .profile-card {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 12px 0;
+         }
+
+         .profile-avatar {
+            width: 80px;
+            height: 80px;
+            background-color: #6c757d;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+         }
+
+         .avatar-icon {
+            color: white;
+            font-size: 32px;
+         }
+
+         .profile-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #222222;
+            margin-bottom: 8px;
+         }
+
+         .verified-icon {
+            width: 16px;
+            height: 16px;
+            background-color: #00858e;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 8px;
+         }
+
+         .verified-checkmark {
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+         }
+
+         .verified-text {
+            color: #222222;
+            font-size: 14px;
+            font-weight: 500;
+         }
+
+         .description-text {
+            font-size: 16px;
+            color: #222222;
+            line-height: 1.6;
+            margin: 24px 0 0;
+         }
+
+         .thank-you-text {
+            font-size: 16px;
+            color: #222222;
+            line-height: 1.6;
+            margin: 16px 0;
+         }
+
+         .cta-button {
+            background-color: #00858e;
+            color: white !important;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+         }
+
+         a.cta-button {
+            text-decoration: none;
+            color: white !important;
+         }
+
+         .cta-button:hover {
+            background-color: #037e87;
+         }
+
+         .info-section {
+            margin: 32px 0;
+         }
+
+         .info-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #222222;
+            margin-bottom: 16px;
+         }
+
+         .info-list {
+            list-style: none;
+            padding: 0;
+         }
+
+         .info-item {
+            font-size: 14px;
+            color: #222222;
+            line-height: 1.5;
+            margin-bottom: 12px;
+            padding-left: 8px;
+            position: relative;
+         }
+
+         .info-item::before {
+            content: '•';
+            color: #00858e;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+         }
+
+         .link-text {
+            color: #222222;
+            font-weight: 600;
+            text-decoration: underline;
+         }
+
+         .footer-logo {
+            color: #00858e;
+            font-weight: bold;
+            font-size: 16px;
+            text-align: center;
+            line-height: 24px;
+         }
+
+         .footer-text {
+            font-size: 12px;
+            color: #717171;
+            line-height: 1.4;
+         }
+
+         .social-link {
+            width: 24px;
+            height: 24px;
+            background-color: #dddddd;
+            border-radius: 12px;
+            text-align: center;
+            line-height: 24px;
+            text-decoration: none;
+            color: #666666;
+            font-size: 12px;
+            display: inline-block;
+         }
+
+         .social-link:hover {
+            background-color: #cccccc;
+         }
+         a.social-link {
+            text-decoration: none !important;
+            color: #666666 !important;
+         }
+      </style>
+   </head>
+   <body>
+      <!-- Main Container Table -->
+      <table
+         width="100%"
+         cellpadding="0"
+         cellspacing="0"
+         style="background-color: #f7f7f7; padding: 20px 0"
+      >
+         <tr>
+            <td align="center" style="padding: 20px">
+               <!-- Email Content Table -->
+               <table
+                  width="600"
+                  cellpadding="0"
+                  cellspacing="0"
+                  style="
+                     background-color: white;
+                     border-radius: 12px;
+                     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                     max-width: 600px;
+                  "
+               >
+                  <!-- Header Section -->
+                  <tr>
+                     <td style="padding: 24px 24px 0">
+                        <table width="100%" cellpadding="0" cellspacing="0">
+                           <tr>
+                              <td>
+                                 <div class="airbnb-logo">AIRBNB</div>
+                              </td>
+                           </tr>
+                        </table>
+                     </td>
+                  </tr>
+
+                  <!-- Main Content Section -->
+                  <tr>
+                     <td style="padding: 0 24px 24px">
+                        <table width="100%" cellpadding="0" cellspacing="0">
+                           <!-- Main Heading -->
+                           <tr>
+                              <td>
+                                 <h1 class="main-heading">
+                                    Good news, your identity is now verified
+                                 </h1>
+                              </td>
+                           </tr>
+
+                           <!-- Profile Card -->
+                           <tr>
+                              <td>
+                                 <div class="profile-card">
+                                    <table
+                                       width="100%"
+                                       cellpadding="0"
+                                       cellspacing="0"
+                                    >
+                                       <tr>
+                                          <td
+                                             width="80"
+                                             valign="middle"
+                                             style="padding-right: 16px"
+                                          >
+                                             <div class="profile-avatar">
+                                                <span class="avatar-icon"
+                                                   >👤</span
+                                                >
+                                             </div>
+                                          </td>
+                                          <td valign="middle">
+                                             <div class="profile-name">
+                                                {{hostName}}
+                                             </div>
+                                             <div
+                                                style="
+                                                   display: flex;
+                                                   align-items: center;
+                                                "
+                                             >
+                                                <div class="verified-icon">
+                                                   <span
+                                                      class="verified-checkmark"
+                                                      >✓</span
+                                                   >
+                                                </div>
+                                                <span class="verified-text"
+                                                   >Identity verified</span
+                                                >
+                                             </div>
+                                          </td>
+                                       </tr>
+                                    </table>
+                                 </div>
+                              </td>
+                           </tr>
+
+                           <!-- Description Text -->
+                           <tr>
+                              <td>
+                                 <p class="description-text">
+                                    You're all set to book on Airbnb. We've also
+                                    added a badge to your profile to show that
+                                    you've completed this important step.
+                                 </p>
+                              </td>
+                           </tr>
+
+                           <!-- Thank You Text -->
+                           <tr>
+                              <td>
+                                 <p class="thank-you-text">
+                                    Thanks for doing your part to help build
+                                    trust in our community.
+                                 </p>
+                              </td>
+                           </tr>
+
+                           <!-- CTA Button -->
+                           <tr>
+                              <td>
+                                 <a href="#" class="cta-button"
+                                    >Explore Airbnb</a
+                                 >
+                              </td>
+                           </tr>
+
+                           <!-- More Information Section -->
+                           <tr>
+                              <td>
+                                 <div class="info-section">
+                                    <h2 class="info-title">More information</h2>
+                                    <ul class="info-list">
+                                       <li class="info-item">
+                                          Identity verification is required to
+                                          book or host on Airbnb. It's one of
+                                          the ways we build trust in our
+                                          community.
+                                       </li>
+                                       <li class="info-item">
+                                          Info provided during identity
+                                          verification is handled according to
+                                          our
+                                          <a href="https://mainwebsite-dev.netlify.app/policies?type=privacyPolicy" class="link-text"
+                                             >Privacy Policy</a>.
+                                       </li>
+                                       <li class="info-item">
+                                          Questions? Learn more about identity
+                                          verification in our
+                                          <span class="link-text"
+                                             >Help Center</span
+                                          >.
+                                       </li>
+                                    </ul>
+                                 </div>
+                              </td>
+                           </tr>
+                        </table>
+                     </td>
+                  </tr>
+
+                  <!-- Footer Section -->
+                  <tr>
+                     <td style="padding: 24px; border-top: 1px solid #e0e0e0">
+                        <table width="100%" cellpadding="0" cellspacing="0">
+                           <tr>
+                              <td width="40" valign="top">
+                                 <div class="footer-logo">AIRBNB</div>
+                              </td>
+                              <td valign="top" style="padding-left: 16px">
+                                 <div class="footer-text">
+                                    Airbnb Ireland UC<br />
+                                    8 Hanover Quay<br />
+                                    Dublin 2, Ireland
+                                 </div>
+                              </td>
+                              <td align="right" valign="top">
+                                 <table cellpadding="0" cellspacing="8">
+                                    <tr>
+                                       <td style="padding: 0 5px">
+                                          <a href="#" class="social-link">f</a>
+                                       </td>
+                                       <td style="padding: 0 5px">
+                                          <a href="#" class="social-link">@</a>
+                                       </td>
+                                       <td style="padding: 0 5px">
+                                          <a href="#" class="social-link">in</a>
+                                       </td>
+                                    </tr>
+                                 </table>
+                              </td>
+                           </tr>
+                        </table>
+                     </td>
+                  </tr>
+               </table>
+            </td>
+         </tr>
+      </table>
+
+      <script>
+         // CTA button interaction
+         document
+            .querySelector('.cta-button')
+            .addEventListener('click', (e) => {
+               e.preventDefault();
+               alert(
+                  'You would now be redirected to explore Airbnb properties.',
+               );
+            });
+      </script>
+   </body>
+</html>

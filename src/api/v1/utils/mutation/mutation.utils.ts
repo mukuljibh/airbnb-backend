@@ -56,3 +56,11 @@ export function deepFilterObject(obj) {
       return result;
    }, {});
 }
+
+export function makeFirstLetterUpperCase(sentence: string) {
+   const sentenceArray = sentence.split(' ');
+
+   return sentenceArray.reduce((acc, item) => {
+      return `${acc}${item.charAt(0).toUpperCase() + item.slice(1)} `;
+   }, '');
+}

@@ -13,6 +13,7 @@ type page = {
 export type PaginationProps = {
    prev?: page;
    next?: page;
+   current: page;
    totalPages: number;
    totalDocuments: number;
 };
